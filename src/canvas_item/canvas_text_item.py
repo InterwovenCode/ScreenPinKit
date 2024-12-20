@@ -37,10 +37,12 @@ class CanvasTextItem(QGraphicsTextItem):
         styleMap = {
             "font": defaultFont,
             "textColor": QColor(Qt.GlobalColor.red),
+            "outlineColor": QColor(Qt.GlobalColor.white),
             "useShadowEffect": False,
         }
         # 隐藏原本的文本渲染
         self.setDefaultTextColor(Qt.GlobalColor.transparent)
+        self.setFont(defaultFont)
         self.styleAttribute = CanvasAttribute()
         self.styleAttribute.setValue(QVariant(styleMap))
         self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
