@@ -32,6 +32,19 @@ class PluginManager(QObject):
     def loadPlugins(self):
         self.__loadPluginsInside()
         self.__loadPluginsOutside()
+        self.__clearInvalidPluginCfgs()
+
+    def __clearInvalidPluginCfgs(self):
+        '''清除无效的插件配置(考虑到存在绕过插件UI而直接本地删除插件目录的情况，得兼容下)'''
+        isSave = False
+        for attrName in dir(pluginCfg):
+            attr = getattr(pluginCfg, attrName)
+            if isinstance(attr, PluginConfigItemEx):
+                if self.pluginDict.get(attrName) == None:
+                    delattr(pluginCfg, attrName)
+                    isSave = True
+        if isSave:
+            pluginCfg.save()
 
     def __loadPluginsInside(self):
         internalPath = os.path.join(OsHelper.getInternalPath(), "internal_deps/internal_plugins")
@@ -103,8 +116,8 @@ class PluginManager(QObject):
         self.__filterInterface(module)
 
     def __filterInterface(self, module):
-        for attr_name in dir(module):
-            attr = getattr(module, attr_name)
+        for attrName in dir(module):
+            attr = getattr(module, attrName)
             if (
                 isinstance(attr, type)
                 and issubclass(attr, PluginInterface)

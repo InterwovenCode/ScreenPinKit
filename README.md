@@ -177,6 +177,17 @@ ruff format
 ## ☐ 重构绘图工具模块
 由于当初实现的时候，很多绘图工具功能并没有明晰，都是摸索着实现的，所以存在很多硬编码的情况，现在功能基本已稳定，可以重新梳理该功能的行为，计划将拆分为DrawToolProvider、DrawToolSchduler、DrawToolFactory等模块，甚至将它们提炼为一个插件，让绘图工具的实现更灵活，更易扩展
 
+经过测试，其实还可以换一种思路，那就是将Excalidraw、TlDraw之类的web绘图应用使用WebEngineView控件来嵌入到PinEditorWindow上，然后修改绘图层的背景以及取消视图缩放和滚动机制，
+，再追加一个演示模式，那就同原生的体验差不多了，同很多web显示echarts思路差不多，不过性能上损耗会有点大，但是考虑到目前主流机器都还是比较不错的，这个方案理论上也可以落地
+
+https://tldraw.dev/examples/use-cases/image-annotator
+
+更进一步，也可以将绘图层模块重新封装成NativeDrawTool、TlDrawEmbedTool、ExcalidrawEmbedTool，可以节省很多开发工作
+
+当下本人比较建议先接入TlDrawEmbedTool，因为它还支持媒体、gif等格式的媒体文件插入并且预览显示，更有妙用
+
+其实考虑到OCR识别之后，也是采用WebEngineView作为文本选择层，那么将它们两者结合起来也不失为一个更好的方案，起码省事多了
+
 ## ☐ 增加节点式流程定制化支持
 可以让用户通过节点式拖曳定制一些快捷流程，比如某些自动化任务啥的，具体可以参考以下项目
  - [pyqt-node-editor](https://gitlab.com/pavel.krupala/pyqt-node-editor)
