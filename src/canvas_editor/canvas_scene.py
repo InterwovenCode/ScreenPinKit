@@ -290,6 +290,12 @@ class CanvasScene(QGraphicsScene):
                         self.currentItem.setPos(targetPos)
                         self.__completeDraw(self.currentItem)
                     elif self.currentDrawActionEnum == DrawActionEnum.UseNumberMarker:
+                        # 如果当前位置下已经存在一个数字标记图元，则不再创建新的
+                        for item0 in self.itemList:
+                            if isinstance(item0, CanvasNumberMarkerItem):
+                                if item0.sceneBoundingRect().contains(event.scenePos()):
+                                    return super().mousePressEvent(event)
+
                         self.currentItem = CanvasNumberMarkerItem(QRectF(0, 0, 20, 20))
                         self.__startDraw(self.currentItem)
                         targetPos.setX(

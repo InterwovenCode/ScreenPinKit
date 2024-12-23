@@ -251,6 +251,7 @@ class BubbleTipManager(QObject):
             BubbleTipTailPosition.AUTO: AutoTailBubbleTipManager,
             BubbleTipTailPosition.TOP_LEFT_AUTO: TopLeftAutoTailBubbleTipManager,
             BubbleTipTailPosition.BOTTOM_LEFT_AUTO: BottomLeftAutoTailBubbleTipManager,
+            BubbleTipTailPosition.BOTTOM: BottomTailBubbleTipManager,
         }
 
         if position not in managers:

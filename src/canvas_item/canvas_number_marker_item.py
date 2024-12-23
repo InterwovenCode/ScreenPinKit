@@ -1,6 +1,6 @@
 # coding=utf-8
 from .canvas_util import *
-
+from base import *
 
 class CanvasNumberMarkerItem(QGraphicsRectItem):
     """
@@ -30,6 +30,22 @@ class CanvasNumberMarkerItem(QGraphicsRectItem):
         self.shadowEffect.setColor(QColor(0, 0, 0, 100))  # 阴影的颜色和透明度
         self.shadowEffect.setOffset(5 * self.devicePixelRatio, 5 * self.devicePixelRatio)  # 阴影的偏移量
         self.setGraphicsEffect(self.shadowEffect)
+
+    def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent):
+        if(event.button() == Qt.MouseButton.LeftButton):
+            self.textDialog = TextModifyDialog(f"{self.index}", self.scene().views()[0])
+            self.textDialog.finalTextChanged.connect(self.__finalTextChanged)
+            self.textDialog.exec()
+            return
+        return super().mouseDoubleClickEvent(event)
+
+    def __finalTextChanged(self, text: str):
+        try:
+            self.textDialog.close()
+            self.index = int(text)
+            self.update()
+        except Exception as e:
+            pass
 
     def removeShadow(self):
         self.setGraphicsEffect(None)
