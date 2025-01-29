@@ -41,8 +41,7 @@ class OcrLoaderManager:
         import onnxruntime
         import pyclipper
         from shapely.geometry import Polygon
-        from cv2.wechat_qrcode import WeChatQRCode
-        import qrcode
+        from PIL import ImageDraw
 
         internalPath = os.path.join(OsHelper.getInternalPath(), "internal_deps/internal_ocr_loaders")
         self.__initLoadersByFolder(internalPath)
