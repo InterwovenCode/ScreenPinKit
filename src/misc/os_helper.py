@@ -258,3 +258,13 @@ class OsHelper:
             result = os.path.abspath(os.path.join(os.path.dirname(OsHelper.getCallerFilePath()), ".."))
     
         return result
+
+    @staticmethod
+    def explorerFile(path:str):
+        if sys.platform.startswith("win32"):
+            path = path.replace("/", "\\")
+            QProcess.startDetached(f"explorer /select, \"{path}\"")
+        elif sys.platform.startswith("linux"):
+            pass
+        elif sys.platform.startswith("darwin"):
+            pass

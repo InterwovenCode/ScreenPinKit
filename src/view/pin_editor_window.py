@@ -167,6 +167,8 @@ class PinEditorWindow(PinWindow):
             finalPixmap = kv["pixmap"]
             finalPixmap.save(savePath, "png")
 
+            OsHelper.explorerFile(savePath)
+
     def isAllowDrag(self):
         if self.painterWidget.drawWidget != None:
             return not self.painterWidget.drawWidget.isEditorEnabled()
