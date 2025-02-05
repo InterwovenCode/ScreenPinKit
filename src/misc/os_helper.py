@@ -268,4 +268,5 @@ class OsHelper:
             path = path.replace("\\", "/")
             QProcess.startDetached(f"nautilus \"{path}\"")
         elif sys.platform.startswith("darwin"):
-            pass
+            path = path.replace("\\", "/")
+            QProcess.startDetached(f"open -R \"{path}\"")
