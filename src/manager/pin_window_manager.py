@@ -32,16 +32,24 @@ class PinWindowManager:
         """将剪贴板上的图像数据作为冻结窗口"""
         clipboard = QApplication.clipboard()
         mimeData = clipboard.mimeData()
+
+        def isImagePath(mimeData: QMimeData):
+            if mimeData.hasUrls():
+                imgPath = clipboard.text().replace("file:///", "")
+                if not os.path.exists(imgPath):
+                    return False
+                extension = Path(imgPath).suffix
+                supportImgs = [".png", ".jpg", ".jpeg", ".svg", ".webp", ".jfif"]
+                return extension in supportImgs
+            return False
+
         pixmap = None
         if mimeData.hasImage():
             image = clipboard.image()
             pixmap = QPixmap.fromImage(image)
-        elif mimeData.hasUrls():
+        elif isImagePath(mimeData):
             imgPath = clipboard.text().replace("file:///", "")
-            extension = Path(imgPath).suffix
-            supportImgs = [".png", ".jpg", ".jpeg", ".svg", ".webp", ".jfif"]
-            if extension in supportImgs:
-                pixmap = QPixmap(imgPath)
+            pixmap = QPixmap(imgPath)
         elif mimeData.hasText():
             text = clipboard.text()
             fontPath = ":/fonts/cangerjinxie01-9128-W03.otf"
