@@ -47,8 +47,10 @@ class CanvasEffectRectItem(CanvasCommonPathItem):
     def styleAttributeChanged(self):
         styleMap = self.styleAttribute.getValue().value()
         strength = styleMap["strength"]
+        minStrength = styleMap["minStrength"]
+        maxStrength = styleMap["maxStrength"]
         effectType = styleMap["effectType"]
-        self.effectWorker.startEffect(effectType, self.sourcePixmap, strength)
+        self.effectWorker.startEffect(effectType, self.sourcePixmap, strength, minStrength, maxStrength)
 
     def onEffectFinished(self, finalPixmap: QPixmap):
         self.effectedPixmap = finalPixmap

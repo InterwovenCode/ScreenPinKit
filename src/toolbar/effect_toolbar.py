@@ -9,18 +9,22 @@ class EffectToolbar(CanvasItemToolBar):
         self.listenerEvent()
 
     def initDefaultStyle(self):
+        (minValue, maxValue) = cfg.effectToolbarStrength.range
         self.styleMap = {
             "strength": cfg.get(cfg.effectToolbarStrength),
+            "minStrength": minValue,
+            "maxStrength": maxValue,
             "effectType": cfg.get(cfg.effectToolbarEffectType),
         }
 
         self.effectTypeInfos = [
             (self.tr("Blur"), ScreenShotIcon.BLUR, AfterEffectType.Blur),
             (self.tr("Mosaic"), ScreenShotIcon.IMAGE_MOSAIC, AfterEffectType.Mosaic),
+            (self.tr("Darken"), ScreenShotIcon.IMAGE_DARKEN, AfterEffectType.Darken),
+            (self.tr("Invert"), ScreenShotIcon.IMAGE_INVERT, AfterEffectType.Invert),
             (self.tr("Detail"), ScreenShotIcon.IMAGE_DETAIL, AfterEffectType.Detail),
             (self.tr("Find_Edges"), ScreenShotIcon.IMAGE_FIND_EDGES, AfterEffectType.Find_Edges),
             (self.tr("Contour"), ScreenShotIcon.IMAGE_CONTOUR, AfterEffectType.Contour),
-            (self.tr("Invert"), ScreenShotIcon.IMAGE_INVERT, AfterEffectType.Invert),
         ]
 
     def refreshStyleUI(self):

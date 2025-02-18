@@ -18,6 +18,7 @@ class AfterEffectType(Enum):
     Find_Edges = "Find_Edges"
     Contour = "Contour"
     Invert = "Invert"
+    Darken = "Darken"
 
 
 class AfterEffectUtilByPIL:
@@ -92,6 +93,21 @@ class AfterEffectUtilByPIL:
         img:QImage = pixmap.toImage()
         img.invertPixels()
         return QPixmap.fromImage(img)
+
+    @staticmethod
+    def darken(pixmap: QPixmap, factor=0.5):
+        """变暗"""
+        result = QPixmap(pixmap.size())
+        result.setDevicePixelRatio(pixmap.devicePixelRatio())
+        result.fill(Qt.transparent)
+
+        painter = QPainter(result)
+        painter.drawPixmap(0, 0, pixmap)
+
+        brush = QBrush(QColor(0, 0, 0, int(255 * (1 - factor))))
+        painter.fillRect(pixmap.rect(), brush)
+        painter.end()
+        return result
 
     # @staticmethod
     # def mosaic2(pixmap:QPixmap, blockSize = 16):
@@ -230,13 +246,15 @@ class EffectWorker(QThread):
         self.setStackSize(1024 * 1024)
 
     def startEffect(
-        self, effectType: AfterEffectType, sourcePixmap: QPixmap, strength: int
+        self, effectType: AfterEffectType, sourcePixmap: QPixmap, value: int, minValue:int, maxValue:int
     ):
         if self.isRunning:
             return
         self.effectType = effectType
         self.sourcePixmap = sourcePixmap
-        self.strength = strength
+        self.value = value
+        self.minValue = minValue
+        self.maxValue = maxValue
         self.start()
 
     def run(self):
@@ -244,12 +262,15 @@ class EffectWorker(QThread):
         try:
             if self.effectType == AfterEffectType.Blur:
                 finalPixmap = AfterEffectUtilByPIL.gaussianBlur(
-                    self.sourcePixmap, self.strength
+                    self.sourcePixmap, self.value
                 )
             elif self.effectType == AfterEffectType.Mosaic:
                 finalPixmap = AfterEffectUtilByPIL.mosaic(
-                    self.sourcePixmap, 5, self.strength
+                    self.sourcePixmap, 5, self.value
                 )
+            elif self.effectType == AfterEffectType.Darken:
+                factor = (self.maxValue - self.value)/(self.maxValue - self.minValue)
+                finalPixmap = AfterEffectUtilByPIL.darken(self.sourcePixmap, factor)
             elif self.effectType == AfterEffectType.Detail:
                 finalPixmap = AfterEffectUtilByPIL.detail(self.sourcePixmap)
             elif self.effectType == AfterEffectType.Find_Edges:

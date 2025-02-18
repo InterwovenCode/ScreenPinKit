@@ -700,6 +700,10 @@
         <translation>模糊</translation>
     </message>
     <message>
+        <source>Darken</source>
+        <translation>变暗</translation>
+    </message>
+    <message>
         <source>Detail</source>
         <translation>图像突出</translation>
     </message>

@@ -55,6 +55,7 @@
         <file>icons/image_invert.svg</file>
         <file>icons/image_contour.svg</file>
         <file>icons/image_detail.svg</file>
+        <file>icons/image_darken.svg</file>
         <file>icons/image_find_edges.svg</file>
 
         <file>qss/dark/setting_interface.qss</file>
