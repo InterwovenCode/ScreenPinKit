@@ -62,6 +62,7 @@ class ScreenShotIcon(FluentIconBase, Enum):
     IMAGE_INVERT = "image_invert"
     IMAGE_DARKEN = "image_darken"
     IMAGE_FIND_EDGES = "image_find_edges"
+    IMAGE_BUBBLE_TEXT = "image_bubble_text"
     ROUND_BOX = "round_box"
     QR_CODE = "qr_code"
     OCR_LOADER = "ocr_loader"

@@ -34,6 +34,7 @@ class ToolbarInterface(QWidget):
         self.markerPenToolbarInterface = self.buildMarkerPenToolbar()
         self.penToolbarInterface = self.buildPenToolbar()
         self.textEditToolbarInterface = self.buildTextEditToolbar()
+        self.bubbleTextEditToolbarInterface = self.buildBubbleTextEditToolbar()
         self.eraseToolbarInterface = self.buildEraseToolbar()
         self.effectToolbarInterface = self.buildEffectToolBar()
 
@@ -68,6 +69,11 @@ class ToolbarInterface(QWidget):
             self.tr("TextEditToolbar"),
         )
         self.addSubInterface(
+            self.bubbleTextEditToolbarInterface,
+            "bubbleTextEditToolbarInterface",
+            self.tr("BubbleTextEditToolbar"),
+        )
+        self.addSubInterface(
             self.eraseToolbarInterface, "eraseToolbarInterface", self.tr("EraseToolbar")
         )
         self.addSubInterface(
@@ -90,6 +96,13 @@ class ToolbarInterface(QWidget):
         )
         if isOk:
             cfg.textEditToolbarFont = font
+
+    def __onBubbleTextEditToolbarFontCardClicked(self):
+        font, isOk = QFontDialog.getFont(
+            cfg.bubbleTextEditToolbarFont, self.window(), self.tr("Choose font")
+        )
+        if isOk:
+            cfg.bubbleTextEditToolbarFont = font
 
     def __onNumberMarkerItemToolbarFontCardClicked(self):
         font, isOk = QFontDialog.getFont(
@@ -346,6 +359,58 @@ class ToolbarInterface(QWidget):
         textEditToolbarGroup.addSettingCard(textEditToolbarShadowEffectCard)
         textEditToolbarFontCard.clicked.connect(self.__onTextEditToolbarFontCardClicked)
         return textEditToolbarGroup
+
+    def buildBubbleTextEditToolbar(self):
+        bubbleTextEditToolbarGroup = SettingCardGroupLite(self)
+        bubbleTextEditToolbarFontCard = PushSettingCard(
+            self.tr("Choose font"),
+            ScreenShotIcon.TEXT,
+            self.tr("Font family"),
+            parent=bubbleTextEditToolbarGroup,
+        )
+        bubbleTextEditToolbarFontSizeCard = RangeSettingCard(
+            cfg.bubbleTextEditToolbarFontSize,
+            FIF.FONT_SIZE,
+            self.tr("Font size"),
+            parent=bubbleTextEditToolbarGroup,
+        )
+        bubbleTextEditToolbarTextColorCard = ColorSettingCard(
+            cfg.bubbleTextEditToolbarTextColor,
+            ScreenShotIcon.PEN,
+            self.tr("Text color"),
+            parent=bubbleTextEditToolbarGroup,
+            enableAlpha=True,
+        )
+        bubbleTextEditToolbarOutlineColorCard = ColorSettingCard(
+            cfg.bubbleTextEditToolbarOutlineColor,
+            ScreenShotIcon.BRUSH,
+            self.tr("Outline color"),
+            parent=bubbleTextEditToolbarGroup,
+            enableAlpha=True,
+        )
+        bubbleTextEditToolbarBubbleColorCard = ColorSettingCard(
+            cfg.bubbleTextEditToolbarBubbleColor,
+            ScreenShotIcon.IMAGE_BUBBLE_TEXT,
+            self.tr("Bubble color"),
+            parent=bubbleTextEditToolbarGroup,
+            enableAlpha=True,
+        )
+        bubbleTextEditToolbarShadowEffectCard = SwitchSettingCard(
+            ScreenShotIcon.SHADOW_EFFECT,
+            self.tr("Shadow effect"),
+            None,
+            configItem=cfg.bubbleTextEditToolbarUseShadowEffect,
+            parent=bubbleTextEditToolbarGroup,
+        )
+
+        bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarFontCard)
+        bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarFontSizeCard)
+        bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarTextColorCard)
+        bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarOutlineColorCard)
+        bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarBubbleColorCard)
+        bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarShadowEffectCard)
+        bubbleTextEditToolbarFontCard.clicked.connect(self.__onBubbleTextEditToolbarFontCardClicked)
+        return bubbleTextEditToolbarGroup
 
     def buildShapeToolbar(self):
         # shapeToolbar

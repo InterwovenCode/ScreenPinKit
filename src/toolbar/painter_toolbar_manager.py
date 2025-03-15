@@ -3,6 +3,7 @@ from common import cfg
 from .line_strip_toolbar import *
 from .shape_toolbar import *
 from .text_edit_toolbar import *
+from .bubble_text_edit_toolbar import *
 from .erase_toolbar import *
 from .pen_toolbar import *
 from .common_path_toolbar import *
@@ -64,7 +65,9 @@ class PainterToolBarManager(QObject):
             return
 
         drawActionEnum = DrawActionEnum.DrawNone
-        if isinstance(self.canvasItemBar, TextEditToolbar):
+        if isinstance(self.canvasItemBar, BubbleTextEditToolbar):
+            drawActionEnum = DrawActionEnum.EditBubbleText
+        elif isinstance(self.canvasItemBar, TextEditToolbar):
             drawActionEnum = DrawActionEnum.EditText
         elif isinstance(self.canvasItemBar, ShapeToolbar):
             drawActionEnum = DrawActionEnum.DrawShape
@@ -80,7 +83,9 @@ class PainterToolBarManager(QObject):
             drawActionEnum = DrawActionEnum.UseEffectTool
 
         matchDrawActionEnum = DrawActionEnum.DrawNone
-        if isinstance(canvasItem, CanvasTextItem):
+        if isinstance(canvasItem, CanvasBubbleTextItem):
+            matchDrawActionEnum = DrawActionEnum.EditBubbleText
+        elif isinstance(canvasItem, CanvasTextItem):
             matchDrawActionEnum = DrawActionEnum.EditText
         elif isinstance(canvasItem, CanvasShapeItem):
             matchDrawActionEnum = DrawActionEnum.DrawShape
@@ -119,6 +124,8 @@ class PainterToolBarManager(QObject):
         if self.canvasItemBar == None:
             if drawActionEnum == DrawActionEnum.EditText:
                 self.canvasItemBar = TextEditToolbar(parent=self.targetWidget)
+            elif drawActionEnum == DrawActionEnum.EditBubbleText:
+                self.canvasItemBar = BubbleTextEditToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.DrawShape:
                 self.canvasItemBar = ShapeToolbar(parent=self.targetWidget)
             elif drawActionEnum == DrawActionEnum.UseEraser:

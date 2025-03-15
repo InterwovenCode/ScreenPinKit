@@ -205,6 +205,9 @@ class MainWindow(DragWindow):
         self.canvasEditor.initUI()
         self.canvasEditor.scene.initNodes()
 
+    def getActiveState(self) -> bool:
+        return self.isActiveWindow()
+
     def isAllowDrag(self):
         if self.physicalPixmap.isNull():
             return False

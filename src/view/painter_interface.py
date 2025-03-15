@@ -149,6 +149,11 @@ class PainterInterface(QWidget):
                 self.tr("TextEdit"),
                 triggered=lambda: self.switchDrawTool(DrawActionEnum.EditText),
             ),
+            Action(
+                ScreenShotIcon.IMAGE_BUBBLE_TEXT,
+                self.tr("BubbleTextEdit"),
+                triggered=lambda: self.switchDrawTool(DrawActionEnum.EditBubbleText),
+            ),
         ]
 
         for action in drawActions:

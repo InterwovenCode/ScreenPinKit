@@ -7,6 +7,7 @@ from canvas_item.canvas_util import CanvasUtil
 class DrawActionEnum(Enum):
     DrawNone = "无操作"
     EditText = "编辑文字"
+    EditBubbleText = "编辑气泡文本"
     UsePen = "使用画笔"
     UseEraser = "使用橡皮擦"
     UseEraserRectItem = "使用橡皮框"
@@ -32,6 +33,7 @@ class DrawActionInfo(QObject):
     def initLocale(self):
         self.map[DrawActionEnum.DrawNone] = self.tr("DrawNone")
         self.map[DrawActionEnum.EditText] = self.tr("EditText")
+        self.map[DrawActionEnum.EditBubbleText] = self.tr("EditBubbleText")
         self.map[DrawActionEnum.UsePen] = self.tr("UsePencil")
         self.map[DrawActionEnum.UseEraser] = self.tr("UseEraser")
         self.map[DrawActionEnum.UseEraserRectItem] = self.tr("UseEraserRectItem")
@@ -279,6 +281,18 @@ class CanvasScene(QGraphicsScene):
                 if self.currentItem == None:
                     if self.currentDrawActionEnum == DrawActionEnum.EditText:
                         self.currentItem = CanvasTextItem()
+                        self.currentItem.switchEditableBox()
+                        self.__startDraw(self.currentItem)
+                        targetPos.setX(
+                            targetPos.x() - self.currentItem.boundingRect().width() / 2
+                        )
+                        targetPos.setY(
+                            targetPos.y() - self.currentItem.boundingRect().height() / 2
+                        )
+                        self.currentItem.setPos(targetPos)
+                        self.__completeDraw(self.currentItem)
+                    if self.currentDrawActionEnum == DrawActionEnum.EditBubbleText:
+                        self.currentItem = CanvasBubbleTextItem()
                         self.currentItem.switchEditableBox()
                         self.__startDraw(self.currentItem)
                         targetPos.setX(

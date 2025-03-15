@@ -57,6 +57,7 @@
         <file>icons/image_detail.svg</file>
         <file>icons/image_darken.svg</file>
         <file>icons/image_find_edges.svg</file>
+        <file>icons/image_bubble_text.svg</file>
 
         <file>qss/dark/setting_interface.qss</file>
         <file>qss/light/setting_interface.qss</file>

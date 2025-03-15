@@ -395,6 +395,10 @@
         <translation>文本框</translation>
     </message>
     <message>
+        <source>BubbleTextEdit</source>
+        <translation>气泡文本</translation>
+    </message>
+    <message>
         <source>Eraser</source>
         <translation>橡皮擦</translation>
     </message>
@@ -470,6 +474,10 @@
         <translation>文本框</translation>
     </message>
     <message>
+        <source>BubbleTextEdit</source>
+        <translation>气泡文本</translation>
+    </message>
+    <message>
         <source>Eraser</source>
         <translation>橡皮擦</translation>
     </message>
@@ -530,6 +538,45 @@
     <message>
         <source>Outline color</source>
         <translation>描边颜色</translation>
+    </message>
+    <message>
+        <source>Shadow effect</source>
+        <translation>阴影特效</translation>
+    </message>
+</context>
+<context>
+    <name>BubbleTextEditToolbar</name>
+    <message>
+        <source>Text bold</source>
+        <translation>加粗</translation>
+    </message>
+    <message>
+        <source>Text italic</source>
+        <translation>斜体</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>颜色</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>字体</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>不透明度</translation>
+    </message>
+    <message>
+        <source>Text color</source>
+        <translation>文本颜色</translation>
+    </message>
+    <message>
+        <source>Outline color</source>
+        <translation>描边颜色</translation>
+    </message>
+    <message>
+        <source>Bubble color</source>
+        <translation>气泡颜色</translation>
     </message>
     <message>
         <source>Shadow effect</source>
@@ -835,6 +882,10 @@
         <translation>文本框工具栏</translation>
     </message>
     <message>
+        <source>BubbleTextEditToolbar</source>
+        <translation>气泡文本工具栏</translation>
+    </message>
+    <message>
         <source>Font family</source>
         <translation>字体样式</translation>
     </message>
@@ -853,6 +904,10 @@
     <message>
         <source>Outline color</source>
         <translation>描边颜色</translation>
+    </message>
+    <message>
+        <source>Bubble color</source>
+        <translation>气泡颜色</translation>
     </message>
     <message>
         <source>EffectToolbar</source>

@@ -63,6 +63,13 @@ TEMPLATE_CONFIG = """
         "fontSize": 15,
         "textColor": "#ffff007f"
     },
+    "BubbleTextEditToolbar": {
+        "fontFamily": "Microsoft YaHei",
+        "fontSize": 15,
+        "textColor": "#ffff007f",
+        "outlineColor": "#ffffffff",
+        "bubbleColor": "#282c34"
+    },
     "QFluentWidgets": {
         "ThemeColor": "#ff009faa",
         "ThemeMode": "Auto"

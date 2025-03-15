@@ -132,6 +132,18 @@ class Config(QConfig):
     textEditToolbarOutlineColor = ColorConfigItem("TextEditToolbar", "outlineColor", Qt.white)
     textEditToolbarUseShadowEffect = ConfigItem("TextEditToolbar", "useShadowEffect", True, BoolValidator())
 
+    # BubbleTextEditToolbar
+    bubbleTextEditToolbarFontFamily = ConfigItem(
+        "BubbleTextEditToolbar", "fontFamily", "Microsoft YaHei"
+    )
+    bubbleTextEditToolbarFontSize = RangeConfigItem(
+        "BubbleTextEditToolbar", "fontSize", 5, RangeValidator(1, 100)
+    )
+    bubbleTextEditToolbarTextColor = ColorConfigItem("BubbleTextEditToolbar", "textColor", Qt.red)
+    bubbleTextEditToolbarOutlineColor = ColorConfigItem("BubbleTextEditToolbar", "outlineColor", QColor(0, 0, 0, 0))
+    bubbleTextEditToolbarBubbleColor = ColorConfigItem("BubbleTextEditToolbar", "bubbleColor", Qt.GlobalColor.white)
+    bubbleTextEditToolbarUseShadowEffect = ConfigItem("BubbleTextEditToolbar", "useShadowEffect", True, BoolValidator())
+
     # EffectToolbar
     effectToolbarStrength = RangeConfigItem(
         "EffectToolbar", "strength", 5, RangeValidator(1, 15)
@@ -263,6 +275,16 @@ class Config(QConfig):
     @textEditToolbarFont.setter
     def textEditToolbarFont(self, font: QFont):
         self.textEditToolbarFontFamily.value = font.family()
+        self.save()
+
+    @property
+    def bubbleTextEditToolbarFont(self):
+        font = QFont(self.bubbleTextEditToolbarFontFamily.value)
+        return font
+
+    @textEditToolbarFont.setter
+    def bubbleTextEditToolbarFont(self, font: QFont):
+        self.bubbleTextEditToolbarFontFamily.value = font.family()
         self.save()
 
 
