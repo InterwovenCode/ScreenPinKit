@@ -30,9 +30,12 @@ class PluginManager(QObject):
         pluginCfg.load("plugin_settings.json")
 
     def loadPlugins(self):
+        from common import logger
+        logger.info("开始加载插件", logger_name="plugin")
         self.__loadPluginsInside()
         self.__loadPluginsOutside()
         self.__clearInvalidPluginCfgs()
+        logger.info(f"插件加载完成，共加载 {len(self.pluginDict)} 个插件", logger_name="plugin")
 
     def __clearInvalidPluginCfgs(self):
         '''清除无效的插件配置(考虑到存在绕过插件UI而直接本地删除插件目录的情况，得兼容下)'''

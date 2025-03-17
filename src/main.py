@@ -19,7 +19,9 @@ class MainWindow(QWidget):
         self.initHotKey()
 
     def initPluginManager(self):
+        logger.info("初始化插件管理器")
         pluginMgr.loadPlugins()
+        logger.info("初始化OCR加载器")
         ocrLoaderMgr.initLoaders()
 
     def initPinWindowManager(self):
@@ -64,7 +66,9 @@ class MainWindow(QWidget):
         self.pinWindowMgr.repeatSnip()
 
     def screenShot(self):
+        logger.info("执行屏幕截图操作")
         if self.screenShotWindow == None:
+            logger.debug("创建新的截图窗口")
             self.screenShotWindow = ScreenShotWindow()
             self.screenShotWindow.snipedSignal.connect(self.pinWindowMgr.snip)
             self.screenShotWindow.closedSignal.connect(self.onScreenShotWindowClosed)
@@ -116,6 +120,11 @@ def main():
     appDpiHelper = AppDpiHelper()
     if not appDpiHelper.tryApplyDpiConfig():
         return
+        
+    # 初始化日志系统
+    logger.info("应用程序启动", logger_name="app")
+    logger.info(f"日志级别: {cfg.get(cfg.logLevel)}", logger_name="app")
+    logger.info(f"文件日志: {'启用' if cfg.get(cfg.enableFileLogging) else '禁用'}", logger_name="app")
 
     # create application
     fixWebEngineViewCrash()

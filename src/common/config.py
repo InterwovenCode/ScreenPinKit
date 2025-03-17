@@ -97,6 +97,15 @@ class Config(QConfig):
     checkUpdateAtStartUp = ConfigItem(
         "Update", "CheckUpdateAtStartUp", True, BoolValidator()
     )
+    
+    # Logger
+    logLevel = OptionsConfigItem(
+        "Logging", "LogLevel", "INFO", 
+        OptionsValidator(["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"])
+    )
+    enableFileLogging = ConfigItem(
+        "Logging", "EnableFileLogging", True, BoolValidator()
+    )
 
     # Toolbar
     toolbarUseWheelZoom = ConfigItem("Toolbar", "useWheelZoom", True, BoolValidator())

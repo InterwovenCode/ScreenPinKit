@@ -29,6 +29,7 @@ from .hotkey_setting_card_group import HotkeySettingCardGroup
 from .toolbar_setting_card_group import ToolbarSettingCardGroup
 from .ocr_loader_card_group import OcrLoaderSettingGroup
 from .plugin_market_card_group import PluginMarketCardGroup
+from .logger_setting_card_group import LoggerSettingCardGroup
 
 
 class SettingInterface(ScrollArea):
@@ -44,13 +45,7 @@ class SettingInterface(ScrollArea):
 
         # general
         self.generalGroup = SettingCardGroup(self.tr("General"), self.scrollWidget)
-        self.cacheFolderCard = PushSettingCard(
-            self.tr("Choose folder"),
-            FIF.DOWNLOAD,
-            self.tr("Cache directory"),
-            cfg.get(cfg.cacheFolder),
-            self.generalGroup,
-        )
+        
         self.pluginMarketUrlCard = HyperlinkCard(
             cfg.get(cfg.pluginMarketUrl),
             "Github Url",
@@ -169,6 +164,20 @@ class SettingInterface(ScrollArea):
             self.tr("Global Hotkey"), self.scrollWidget
         )
 
+        # logger
+        self.loggerGroup = LoggerSettingCardGroup(
+            self.tr("Logger"), 
+            self.scrollWidget,
+        )
+
+        self.cacheFolderCard = PushSettingCard(
+            self.tr("Choose folder"),
+            FIF.DOWNLOAD,
+            self.tr("Cache directory"),
+            cfg.get(cfg.cacheFolder),
+            self.generalGroup,
+        )
+
         # update software
         self.updateSoftwareGroup = SettingCardGroup(
             self.tr("Software update"), self.scrollWidget
@@ -259,6 +268,7 @@ class SettingInterface(ScrollArea):
         self.expandLayout.addWidget(self.windowShadowStyleGroup)
         self.expandLayout.addWidget(self.toolbarGroup)
         self.expandLayout.addWidget(self.hotkeyGroup)
+        self.expandLayout.addWidget(self.loggerGroup)
         self.expandLayout.addWidget(self.updateSoftwareGroup)
         self.expandLayout.addWidget(self.aboutGroup)
 

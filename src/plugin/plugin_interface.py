@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication, QStyle
 from PyQt5.QtGui import QIcon
 from abc import ABC, abstractmethod
 from enum import Enum
+from common import *
 
 class GlobalEventEnum(Enum):
     OcrStartEvent = 1
@@ -105,6 +106,5 @@ class PluginInterface(ABC):
         frame = inspect.currentframe().f_back
         evalFilename = frame.f_code.co_filename
         evalLineNumber = frame.f_lineno
-        final = f"""<----------{self.name}|{evalFilename}:{evalLineNumber}---------->
-{message}"""
-        print(final)
+        final = f"{self.name}|{evalFilename}:{evalLineNumber} ==> {message}"
+        logger.info(final, logger_name=f"plugin")

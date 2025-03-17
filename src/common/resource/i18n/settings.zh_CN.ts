@@ -80,6 +80,10 @@
         <translation>选择界面所使用的语言</translation>
     </message>
     <message>
+        <source>Logger</source>
+        <translation>日志</translation>
+    </message>
+    <message>
         <source>Software update</source>
         <translation>软件更新</translation>
     </message>
@@ -1081,6 +1085,45 @@
     <message>
         <source>Use ocrloader type</source>
         <translation>OCR加载器类型</translation>
+    </message>
+</context>
+<context>
+    <name>LoggerSettingCardGroup</name>
+    <message>
+        <source>Log Level</source>
+        <translation>日志等级</translation>
+    </message>
+    <message>
+        <source>Set the minimum level of log messages to record</source>
+        <translation>设置日志消息记录的最低级别</translation>
+    </message>
+    <message>
+        <source>DEBUG</source>
+        <translation>调试</translation>
+    </message>
+    <message>
+        <source>INFO</source>
+        <translation>信息</translation>
+    </message>
+    <message>
+        <source>WARNING</source>
+        <translation>警告</translation>
+    </message>
+    <message>
+        <source>ERROR</source>
+        <translation>错误</translation>
+    </message>
+    <message>
+        <source>CRITICAL</source>
+        <translation>致命</translation>
+    </message>
+    <message>
+        <source>Enable File Logging</source>
+        <translation>启用文件日志</translation>
+    </message>
+    <message>
+        <source>Save log messages to files in the logs directory</source>
+        <translation>将日志消息保存到日志目录中的文件中</translation>
     </message>
 </context>
 </TS>
