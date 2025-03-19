@@ -575,12 +575,12 @@
         <translation>文本颜色</translation>
     </message>
     <message>
-        <source>Outline color</source>
-        <translation>描边颜色</translation>
+        <source>Pen color</source>
+        <translation>画笔颜色</translation>
     </message>
     <message>
-        <source>Bubble color</source>
-        <translation>气泡颜色</translation>
+        <source>Brush color</source>
+        <translation>笔刷颜色</translation>
     </message>
     <message>
         <source>Shadow effect</source>
@@ -908,10 +908,6 @@
     <message>
         <source>Outline color</source>
         <translation>描边颜色</translation>
-    </message>
-    <message>
-        <source>Bubble color</source>
-        <translation>气泡颜色</translation>
     </message>
     <message>
         <source>EffectToolbar</source>

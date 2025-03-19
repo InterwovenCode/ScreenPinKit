@@ -19,8 +19,9 @@ class BubbleTextEditToolbar(CanvasItemToolBar):
         self.styleMap = {
             "font": defaultFont,
             "textColor": cfg.get(cfg.bubbleTextEditToolbarTextColor),
-            "outlineColor": cfg.get(cfg.bubbleTextEditToolbarOutlineColor),
-            "bubbleColor": cfg.get(cfg.bubbleTextEditToolbarBubbleColor),
+            "outlineColor": QColor(Qt.GlobalColor.transparent), #让文本描边透明
+            "penColor": cfg.get(cfg.bubbleTextEditToolbarPenColor),
+            "brushColor": cfg.get(cfg.bubbleTextEditToolbarBrushColor),
             "useShadowEffect": cfg.get(cfg.bubbleTextEditToolbarUseShadowEffect),
         }
 
@@ -50,11 +51,11 @@ class BubbleTextEditToolbar(CanvasItemToolBar):
         self.textColorPickerButton = self.initColorOptionUI(
             self.tr("Text color"), self.styleMap["textColor"]
         )
-        self.outlineColorPickerButton = self.initColorOptionUI(
-            self.tr("Outline color"), self.styleMap["outlineColor"]
+        self.penColorPickerButton = self.initColorOptionUI(
+            self.tr("Pen color"), self.styleMap["penColor"]
         )
-        self.bubbleColorPickerButton = self.initColorOptionUI(
-            self.tr("Bubble color"), self.styleMap["bubbleColor"]
+        self.brushColorPickerButton = self.initColorOptionUI(
+            self.tr("Brush color"), self.styleMap["brushColor"]
         )
         self.fontPickerButton = self.initFontOptionUI(
             self.tr("Font"), self.styleMap["font"]
@@ -80,15 +81,15 @@ class BubbleTextEditToolbar(CanvasItemToolBar):
     def refreshStyleUI(self):
         font: QFont = self.styleMap["font"]
         textColor: QColor = self.styleMap["textColor"]
-        outlineColor: QColor = self.styleMap["outlineColor"]
-        bubbleColor: QColor = self.styleMap["bubbleColor"]
+        penColor: QColor = self.styleMap["penColor"]
+        brushColor: QColor = self.styleMap["brushColor"]
         useShadowEffect: bool = self.styleMap["useShadowEffect"]
         self.boldButton.setChecked(font.bold())
         self.italicButton.setChecked(font.italic())
         self.opacitySlider.setValue(self.opacity)
         self.textColorPickerButton.setColor(textColor)
-        self.outlineColorPickerButton.setColor(outlineColor)
-        self.bubbleColorPickerButton.setColor(bubbleColor)
+        self.penColorPickerButton.setColor(penColor)
+        self.brushColorPickerButton.setColor(brushColor)
         self.fontPickerButton.setTargetFont(font)
         self.shadowEffectButton.setChecked(useShadowEffect)
 
@@ -96,12 +97,12 @@ class BubbleTextEditToolbar(CanvasItemToolBar):
         self.styleMap["textColor"] = color
         self.refreshAttachItem()
 
-    def outlineColorChangedHandle(self, color: QColor):
-        self.styleMap["outlineColor"] = color
+    def penColorChangedHandle(self, color: QColor):
+        self.styleMap["penColor"] = color
         self.refreshAttachItem()
 
-    def bubbleColorChangedHandle(self, color: QColor):
-        self.styleMap["bubbleColor"] = color
+    def brushColorChangedHandle(self, color: QColor):
+        self.styleMap["brushColor"] = color
         self.refreshAttachItem()
 
     def fontChangedHandle(self, font: QFont):
@@ -115,8 +116,8 @@ class BubbleTextEditToolbar(CanvasItemToolBar):
 
     def listenerEvent(self):
         self.textColorPickerButton.colorChanged.connect(self.textColorChangedHandle)
-        self.outlineColorPickerButton.colorChanged.connect(self.outlineColorChangedHandle)
-        self.bubbleColorPickerButton.colorChanged.connect(self.bubbleColorChangedHandle)
+        self.penColorPickerButton.colorChanged.connect(self.penColorChangedHandle)
+        self.brushColorPickerButton.colorChanged.connect(self.brushColorChangedHandle)
         self.fontPickerButton.fontChanged.connect(self.fontChangedHandle)
         self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
         self.italicButton.clicked.connect(self.fontExtStyleChangedHandle)

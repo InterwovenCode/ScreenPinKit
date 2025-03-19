@@ -112,7 +112,7 @@ class PluginManager(QObject):
                                     self.pluginGroupDict[pluginInst.name] = root
                             except Exception as e:
                                 errorMessage = "\n".join(e.args)
-                                print(f"{moduleName} load fail：{errorMessage}")
+                                logger.error(f"{moduleName} load fail：{errorMessage}")
 
     def __loadPluginByModuleName(self, moduleName):
         module = importlib.import_module(moduleName)
@@ -145,7 +145,7 @@ class PluginManager(QObject):
                 try:
                     plugin.handleEvent(eventName, *args, **kwargs)
                 except Exception as e:
-                    print("\n".join(e.args))
+                    logger.error("\n".join(e.args))
 
     def reloadPlugins(self):
         for plugin0 in self.pluginDict.values():

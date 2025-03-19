@@ -475,16 +475,18 @@ class PainterInterface(QWidget):
             self.ocrLoader: OcrLoaderInterface = ocrLoaderMgr.loaderDict[
                 cfg.get(cfg.useOcrLoaderType)
             ]
-            print(
-                f"ocr info [{self.ocrLoader.mode}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}"
+            logger.info(
+                f"ocr info [{self.ocrLoader.mode}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}", logger_name="ocr"
             )
             self.ocrStartSignal.emit()
 
             result = self.ocrLoader.ocr(pixmap)
+            logger.info(result, logger_name="ocr")
             self.ocrEndSuccessSignal.emit(result)
 
         except Exception as e:
             message = "\n".join(e.args)
+            logger.error(message, logger_name="ocr")
             self.ocrEndFailSignal.emit(message)
 
         self.ocrState = 1

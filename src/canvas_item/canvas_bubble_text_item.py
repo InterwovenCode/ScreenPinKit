@@ -20,8 +20,9 @@ class CanvasBubbleTextItem(CanvasTextItem):
         styleMap = {
             "font": defaultFont,
             "textColor": QColor(Qt.GlobalColor.red),
-            "outlineColor": QColor(Qt.GlobalColor.white),
-            "bubbleColor": QColor(Qt.GlobalColor.blue),
+            "outlineColor": QColor(Qt.GlobalColor.transparent), #让文本描边透明
+            "penColor": QColor(Qt.GlobalColor.green),
+            "brushColor": QColor(Qt.GlobalColor.blue),
             "useShadowEffect": False,
         }
         # 隐藏原本的文本渲染
@@ -40,7 +41,8 @@ class CanvasBubbleTextItem(CanvasTextItem):
         painter.save()
 
         styleMap = self.styleAttribute.getValue().value()
-        bubbleColor = styleMap["bubbleColor"]
+        penColor = styleMap["penColor"]
+        brushColor = styleMap["brushColor"]
 
         # 创建气泡路径
         path = QPainterPath()
@@ -57,10 +59,8 @@ class CanvasBubbleTextItem(CanvasTextItem):
         triangle.closeSubpath()
         path = path.united(triangle)
 
-        bubbleColor.setAlpha(150)
-        painter.setBrush(QBrush(bubbleColor))
-        bubbleColor.setAlpha(255)
-        painter.setPen(bubbleColor)
+        painter.setBrush(QBrush(brushColor))
+        painter.setPen(QPen(penColor, 2 * self.devicePixelRatio))
         painter.drawPath(path)
 
         painter.restore()

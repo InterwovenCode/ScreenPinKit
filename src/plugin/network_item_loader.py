@@ -2,6 +2,7 @@ import sys, requests
 from requests import Session
 from .plugin_inst_config import PluginInstConfig
 from .plugin_config import *
+from common import *
 
 networkImageCache = {}
 
@@ -53,7 +54,7 @@ class NetworkItemLoader(QRunnable):
 
             self.signals.loadFinishedSignal.emit(temp, self.index)
         except Exception as e:
-            print(f"Error loading image: {e}")
+            logger.error(f"Error loading image: {e}")
 
 class MarketWorker(QThread):
     loadFinishedSignal = pyqtSignal(object)
@@ -73,7 +74,7 @@ class MarketWorker(QThread):
                 _importErrorMsg = e.stderr
             else:
                 _importErrorMsg = "\n".join([str(arg) for arg in e.args])
-            print(f"MarketWorker: load failed {_importErrorMsg}")
+            logger.error(f"MarketWorker: load failed {_importErrorMsg}")
 
 class NetworkLoaderManager(QObject):
     loadItemFinishedSignal = pyqtSignal(PluginInstConfig)

@@ -376,22 +376,22 @@ class ToolbarInterface(QWidget):
         )
         bubbleTextEditToolbarTextColorCard = ColorSettingCard(
             cfg.bubbleTextEditToolbarTextColor,
-            ScreenShotIcon.PEN,
+            ScreenShotIcon.TEXT,
             self.tr("Text color"),
             parent=bubbleTextEditToolbarGroup,
             enableAlpha=True,
         )
-        bubbleTextEditToolbarOutlineColorCard = ColorSettingCard(
-            cfg.bubbleTextEditToolbarOutlineColor,
-            ScreenShotIcon.BRUSH,
-            self.tr("Outline color"),
+        bubbleTextEditToolbarPenColorCard = ColorSettingCard(
+            cfg.bubbleTextEditToolbarPenColor,
+            ScreenShotIcon.PEN,
+            self.tr("Pen color"),
             parent=bubbleTextEditToolbarGroup,
             enableAlpha=True,
         )
-        bubbleTextEditToolbarBubbleColorCard = ColorSettingCard(
-            cfg.bubbleTextEditToolbarBubbleColor,
-            ScreenShotIcon.IMAGE_BUBBLE_TEXT,
-            self.tr("Bubble color"),
+        bubbleTextEditToolbarBrushColorCard = ColorSettingCard(
+            cfg.bubbleTextEditToolbarBrushColor,
+            ScreenShotIcon.BRUSH,
+            self.tr("Brush color"),
             parent=bubbleTextEditToolbarGroup,
             enableAlpha=True,
         )
@@ -406,8 +406,8 @@ class ToolbarInterface(QWidget):
         bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarFontCard)
         bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarFontSizeCard)
         bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarTextColorCard)
-        bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarOutlineColorCard)
-        bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarBubbleColorCard)
+        bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarPenColorCard)
+        bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarBrushColorCard)
         bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarShadowEffectCard)
         bubbleTextEditToolbarFontCard.clicked.connect(self.__onBubbleTextEditToolbarFontCardClicked)
         return bubbleTextEditToolbarGroup

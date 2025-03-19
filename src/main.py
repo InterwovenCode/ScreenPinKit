@@ -117,6 +117,7 @@ def fixWebEngineViewCrash():
 
 
 def main():
+    color = QColor(128, 128, 128, 5)
     appDpiHelper = AppDpiHelper()
     if not appDpiHelper.tryApplyDpiConfig():
         return

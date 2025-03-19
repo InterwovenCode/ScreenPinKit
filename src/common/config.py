@@ -149,8 +149,8 @@ class Config(QConfig):
         "BubbleTextEditToolbar", "fontSize", 5, RangeValidator(1, 100)
     )
     bubbleTextEditToolbarTextColor = ColorConfigItem("BubbleTextEditToolbar", "textColor", Qt.red)
-    bubbleTextEditToolbarOutlineColor = ColorConfigItem("BubbleTextEditToolbar", "outlineColor", QColor(0, 0, 0, 0))
-    bubbleTextEditToolbarBubbleColor = ColorConfigItem("BubbleTextEditToolbar", "bubbleColor", Qt.GlobalColor.white)
+    bubbleTextEditToolbarPenColor = ColorConfigItem("BubbleTextEditToolbar", "penColor", QColor(0, 0, 0, 0))
+    bubbleTextEditToolbarBrushColor = ColorConfigItem("BubbleTextEditToolbar", "brushColor", Qt.GlobalColor.white)
     bubbleTextEditToolbarUseShadowEffect = ConfigItem("BubbleTextEditToolbar", "useShadowEffect", True, BoolValidator())
 
     # EffectToolbar
