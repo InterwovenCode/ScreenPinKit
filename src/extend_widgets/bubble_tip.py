@@ -163,7 +163,10 @@ class BubbleTip(QWidget):
     def eventFilter(self, obj, e: QEvent):
         if self.parent() and obj is self.parent().window():
             if e.type() in [QEvent.Resize, QEvent.WindowStateChange, QEvent.Move]:
-                self.move(self.manager.position(self))
+                try:
+                    self.move(self.manager.position(self))
+                except Exception as e:
+                    print(e)
 
         return super().eventFilter(obj, e)
 
