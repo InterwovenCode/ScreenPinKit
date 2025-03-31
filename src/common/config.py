@@ -152,6 +152,13 @@ class Config(QConfig):
     bubbleTextEditToolbarPenColor = ColorConfigItem("BubbleTextEditToolbar", "penColor", QColor(0, 0, 0, 0))
     bubbleTextEditToolbarBrushColor = ColorConfigItem("BubbleTextEditToolbar", "brushColor", Qt.GlobalColor.white)
     bubbleTextEditToolbarUseShadowEffect = ConfigItem("BubbleTextEditToolbar", "useShadowEffect", True, BoolValidator())
+    bubbleTextEditToolbarDirection = OptionsConfigItem(
+        "BubbleTextEditToolbar",
+        "direction",
+        BubbleDirectionEnum.BottomLeft,
+        OptionsValidator(BubbleDirectionEnum),
+        EnumSerializer(BubbleDirectionEnum),
+    )
 
     # EffectToolbar
     effectToolbarStrength = RangeConfigItem(
@@ -303,7 +310,7 @@ if not os.path.exists(configFolder):
     os.mkdir(configFolder)
 
 if not os.path.exists(configPath):
-    with open(configPath, "w") as f:
+    with open(configPath, "w", encoding="utf-8") as f:
         f.write(TEMPLATE_CONFIG)
         f.close()
 

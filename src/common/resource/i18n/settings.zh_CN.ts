@@ -586,6 +586,10 @@
         <source>Shadow effect</source>
         <translation>阴影特效</translation>
     </message>
+    <message>
+        <source>Direction</source>
+        <translation>方向</translation>
+    </message>
 </context>
 <context>
     <name>PenToolbar</name>
@@ -1032,6 +1036,10 @@
     <message>
         <source>Shadow effect</source>
         <translation>阴影特效</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation>方向</translation>
     </message>
 </context>
 <context>

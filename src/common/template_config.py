@@ -68,7 +68,9 @@ TEMPLATE_CONFIG = """
         "fontSize": 15,
         "textColor": "#ffffffff",
         "penColor": "#ff0000",
-        "brushColor": "#78161a"
+        "brushColor": "#78161a",
+        "direction": "⇙",
+        "useShadowEffect": true
     },
     "QFluentWidgets": {
         "ThemeColor": "#ff009faa",

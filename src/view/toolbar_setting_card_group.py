@@ -7,6 +7,7 @@ from qfluentwidgets import FluentIcon as FIF
 from extend_widgets import *
 from canvas_item.after_effect_util import AfterEffectType
 from canvas_item.canvas_shape_item import CanvasShapeEnum
+from canvas_item.canvas_bubble_text_item import BubbleDirectionEnum
 
 
 class ToolbarInterface(QWidget):
@@ -361,7 +362,7 @@ class ToolbarInterface(QWidget):
         return textEditToolbarGroup
 
     def buildBubbleTextEditToolbar(self):
-        bubbleTextEditToolbarGroup = SettingCardGroupLite(self)
+        bubbleTextEditToolbarGroup = ScrollSettingCardGroupLite(self)
         bubbleTextEditToolbarFontCard = PushSettingCard(
             self.tr("Choose font"),
             ScreenShotIcon.TEXT,
@@ -402,6 +403,22 @@ class ToolbarInterface(QWidget):
             configItem=cfg.bubbleTextEditToolbarUseShadowEffect,
             parent=bubbleTextEditToolbarGroup,
         )
+        bubbleTextEditToolbarDirectionCard = ComboBoxSettingCardPlus(
+            cfg.bubbleTextEditToolbarDirection,
+            ScreenShotIcon.ARROW,
+            self.tr("Direction"),
+            None,
+            options=[
+                ("□", BubbleDirectionEnum.Null),
+                ("⇖", BubbleDirectionEnum.TopLeft),
+                ("⇗", BubbleDirectionEnum.TopRight),
+                ("⇙", BubbleDirectionEnum.BottomLeft),
+                ("⇘", BubbleDirectionEnum.BottomRight),
+                ("⇐", BubbleDirectionEnum.Left),
+                ("⇒", BubbleDirectionEnum.Right),
+            ],
+            parent=bubbleTextEditToolbarGroup,
+        )
 
         bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarFontCard)
         bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarFontSizeCard)
@@ -409,6 +426,7 @@ class ToolbarInterface(QWidget):
         bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarPenColorCard)
         bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarBrushColorCard)
         bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarShadowEffectCard)
+        bubbleTextEditToolbarGroup.addSettingCard(bubbleTextEditToolbarDirectionCard)
         bubbleTextEditToolbarFontCard.clicked.connect(self.__onBubbleTextEditToolbarFontCardClicked)
         return bubbleTextEditToolbarGroup
 

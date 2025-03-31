@@ -2,7 +2,6 @@
 from common import ScreenShotIcon, cfg
 from .canvas_item_toolbar import *
 
-
 class BubbleTextEditToolbar(CanvasItemToolBar):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -23,7 +22,18 @@ class BubbleTextEditToolbar(CanvasItemToolBar):
             "penColor": cfg.get(cfg.bubbleTextEditToolbarPenColor),
             "brushColor": cfg.get(cfg.bubbleTextEditToolbarBrushColor),
             "useShadowEffect": cfg.get(cfg.bubbleTextEditToolbarUseShadowEffect),
+            "direction": cfg.get(cfg.bubbleTextEditToolbarDirection),
         }
+
+        self.bubbleDirectionInfos = [
+            ("□", BubbleDirectionEnum.Null),
+            ("⇖", BubbleDirectionEnum.TopLeft),
+            ("⇗", BubbleDirectionEnum.TopRight),
+            ("⇙", BubbleDirectionEnum.BottomLeft),
+            ("⇘", BubbleDirectionEnum.BottomRight),
+            ("⇐", BubbleDirectionEnum.Left),
+            ("⇒", BubbleDirectionEnum.Right),
+        ]
 
     def initUI(self):
         self.boldButton = self.addAction(
@@ -51,19 +61,30 @@ class BubbleTextEditToolbar(CanvasItemToolBar):
         self.textColorPickerButton = self.initColorOptionUI(
             self.tr("Text color"), self.styleMap["textColor"]
         )
-        self.penColorPickerButton = self.initColorOptionUI(
-            self.tr("Pen color"), self.styleMap["penColor"]
-        )
-        self.brushColorPickerButton = self.initColorOptionUI(
-            self.tr("Brush color"), self.styleMap["brushColor"]
-        )
         self.fontPickerButton = self.initFontOptionUI(
             self.tr("Font"), self.styleMap["font"]
+        )
+        self.addSeparator()
+        self.bubbleComBox = self.initBubbleOptionUI()
+
+        self.penColorPickerButton = self.initColorOptionUILite(
+            self.styleMap["penColor"]
+        )
+        self.brushColorPickerButton = self.initColorOptionUILite(
+            self.styleMap["brushColor"]
         )
         self.addSeparator()
         self.opacitySlider = self.initSliderOptionUI(
             self.tr("Opacity"), self.opacity, 10, 100
         )
+
+    def initBubbleOptionUI(self):
+        """气泡方向选项"""
+        bubbleComBox = ComboBox(self)
+        for text, enum in self.bubbleDirectionInfos:
+            bubbleComBox.addItem(text=text, userData=enum)
+        self.initTemplateOptionUI(self.tr("Direction"), bubbleComBox)
+        return bubbleComBox
 
     def fontExtStyleChangedHandle(self):
         font: QFont = self.styleMap["font"]
@@ -92,6 +113,14 @@ class BubbleTextEditToolbar(CanvasItemToolBar):
         self.brushColorPickerButton.setColor(brushColor)
         self.fontPickerButton.setTargetFont(font)
         self.shadowEffectButton.setChecked(useShadowEffect)
+
+        currentDirection = self.styleMap["direction"]
+        currentIndex = 0
+        for _, direction in self.bubbleDirectionInfos:
+            if direction == currentDirection:
+                break
+            currentIndex = currentIndex + 1
+        self.bubbleComBox.setCurrentIndex(currentIndex)
 
     def textColorChangedHandle(self, color: QColor):
         self.styleMap["textColor"] = color
@@ -122,6 +151,12 @@ class BubbleTextEditToolbar(CanvasItemToolBar):
         self.opacitySlider.valueChanged.connect(self.opacityValueChangedHandle)
         self.italicButton.clicked.connect(self.fontExtStyleChangedHandle)
         self.shadowEffectButton.clicked.connect(self.shadowEffectChangedHandle)
+        self.bubbleComBox.currentIndexChanged.connect(self.bubbleDirectionComBoxHandle)
+
+    def bubbleDirectionComBoxHandle(self, index):
+        comBox: ComboBox = self.bubbleComBox
+        self.styleMap["direction"] = comBox.currentData()
+        self.refreshAttachItem()
 
     def refreshAttachItem(self):
         if self.canvasItem != None:

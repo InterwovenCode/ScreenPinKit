@@ -85,6 +85,17 @@ class CanvasItemToolBar(CommandBarView):
         self.initTemplateOptionUI(optionName, colorPickerButton)
         return colorPickerButton
 
+    def initColorOptionUILite(self, defaultColor: QColor):
+        """颜色选项"""
+        colorPickerButton = ColorPickerButtonEx(
+            defaultColor, "", self, enableAlpha=True
+        )
+        colorPickerButton.setCheckable(True)
+        colorPickerButton.setFixedSize(30, 30)
+
+        self.initTemplateOptionUILite(colorPickerButton)
+        return colorPickerButton
+
     def initFontOptionUI(self, optionName: str, defaultFont: QFont):
         """字体选项"""
         fontPickerButton = FontPickerButtonPlus(defaultFont, optionName, self)
@@ -135,6 +146,16 @@ class CanvasItemToolBar(CommandBarView):
         optionLayout = QHBoxLayout()
         optionView.setLayout(optionLayout)
         optionLayout.addWidget(QLabel(optionName))
+        optionLayout.addWidget(optionWidget)
+        self.addWidget(optionView)
+        return optionWidget
+
+    def initTemplateOptionUILite(self, optionWidget: QWidget):
+        """模板选项"""
+        optionView = QWidget()
+        optionLayout = QHBoxLayout()
+        optionLayout.setContentsMargins(1, 1, 1, 1)
+        optionView.setLayout(optionLayout)
         optionLayout.addWidget(optionWidget)
         self.addWidget(optionView)
         return optionWidget

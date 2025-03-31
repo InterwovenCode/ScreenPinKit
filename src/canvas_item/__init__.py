@@ -20,4 +20,4 @@ from .canvas_effect_item import CanvasEffectRectItem
 from .canvas_mask_item import CanvasMaskItem
 from .canvas_paste_image_item import CanvasPasteImageItem
 from .canvas_quick_qml_item import CanvasQuickQmlItem
-from .canvas_bubble_text_item import CanvasBubbleTextItem
+from .canvas_bubble_text_item import CanvasBubbleTextItem, BubbleDirectionEnum
