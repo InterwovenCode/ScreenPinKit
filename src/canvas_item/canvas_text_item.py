@@ -47,6 +47,14 @@ class CanvasTextItem(QGraphicsTextItem):
         self.styleAttribute.setValue(QVariant(styleMap))
         self.styleAttribute.valueChangedSignal.connect(self.styleAttributeChanged)
 
+    def contextMenuEvent(self, event: QContextMenuEvent):
+        pressEvent = QKeyEvent(QEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier)
+        releaseEvent = QKeyEvent(QEvent.KeyRelease, Qt.Key_Escape, Qt.NoModifier)
+        
+        QApplication.postEvent(self.scene().views()[0], pressEvent)
+        QApplication.postEvent(self.scene().views()[0], releaseEvent)
+        event.accept()
+
     def type(self) -> int:
         return EnumCanvasItemType.CanvasTextItem.value
 
@@ -230,9 +238,31 @@ class CanvasTextItem(QGraphicsTextItem):
         option.state = option.state & ~QStyle.StateFlag.State_HasFocus
         super().paint(painter, option, widget)
 
+    def handlePasteEvent(self):
+        '''保证粘贴的文本是纯文本，不包含html标签'''
+        clipboard = QApplication.clipboard()
+        mimeData = clipboard.mimeData()
+        
+        if mimeData.hasText():
+            plainText = mimeData.text()
+            plainText = plainText.replace('\r\n', '\n').replace('\r', '\n')
+            cursor = self.textCursor()
+            
+            # 移除当前选中的文本
+            if cursor.hasSelection():
+                cursor.removeSelectedText()
+            
+            cursor.insertText(plainText)
+            self.setTextCursor(cursor)
+
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.clearFocus()
+            event.accept()
+        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_V:
+            self.handlePasteEvent()
+            event.accept()
+            return
         return super().keyPressEvent(event)
 
     def setEditableState(self, isEditable: bool):
