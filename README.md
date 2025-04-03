@@ -112,6 +112,7 @@ ruff format
 | Scope | Hotkey | Function |
 |-------|-------|-------|
 | Global | F7 | Screenshot |
+| Global | Shift+F7 | Repeat the last screenshot |
 | Global | F4 | Call up screen annotation |
 | Global | F2 | Display clipboard image at mouse position |
 | Global | Esc | Gradually exit the editing state of the current window |
@@ -129,7 +130,7 @@ ruff format
 | Screen Annotation Window | Alt+L | Hide/show screen annotation content |
 | Screen Annotation Window | Ctrl+W | Complete drawing |
 
-Please read the [wiki](https://github.com/YaoXuanZhi/ScreenPinKit/wiki) carefully.
+Please proceed to [Youtube - ScreenPinKit](https://www.youtube.com/playlist?list=PL3uuKTASzjRYNdl7wYlgUd7agQIA2_y5V)
 
 ## References
 * [**Snipaste**: Snipaste 是一个简单但强大的截图工具，也可以让你将截图贴回到屏幕上](https://zh.snipaste.com/)

@@ -112,6 +112,7 @@ ruff format
 | 作用域 | 快捷键 | 作用 |
 |-------|-------|-------|
 | 全局 | F7 | 截图 |
+| 全局 | Shift+F7 | 重复上次截图 |
 | 全局 | F4 | 呼出屏幕标注 |
 | 全局 | F2 | 在鼠标位置上显示剪贴板上的图像 |
 | 全局 | Esc | 逐步退出该窗口的编辑状态 |
@@ -129,7 +130,7 @@ ruff format
 | 屏幕标注窗口 | Alt+L | 隐藏/显示屏幕标注内容 |
 | 屏幕标注窗口 | Ctrl+W | 完成绘图 |
 
-请仔细阅读 [wiki](https://github.com/YaoXuanZhi/ScreenPinKit/wiki)
+请移步到 [Youtube - ScreenPinKit](https://www.youtube.com/playlist?list=PL3uuKTASzjRYNdl7wYlgUd7agQIA2_y5V)
 
 ## 参考
 * [**Snipaste**: Snipaste 是一个简单但强大的截图工具，也可以让你将截图贴回到屏幕上](https://zh.snipaste.com/)
