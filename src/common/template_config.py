@@ -72,6 +72,10 @@ TEMPLATE_CONFIG = """
         "direction": "⇙",
         "useShadowEffect": true
     },
+    "Logging": {
+        "EnableFileLogging": false,
+        "LogLevel": "INFO"
+    },
     "QFluentWidgets": {
         "ThemeColor": "#ff009faa",
         "ThemeMode": "Auto"

@@ -107,7 +107,7 @@ class MainWindow(QWidget):
         self.screenShotWindow = None
 
     def exit(self):
-        sys.exit(0)
+        QCoreApplication.quit()
 
 
 def fixWebEngineViewCrash():
@@ -117,7 +117,6 @@ def fixWebEngineViewCrash():
 
 
 def main():
-    color = QColor(128, 128, 128, 5)
     appDpiHelper = AppDpiHelper()
     if not appDpiHelper.tryApplyDpiConfig():
         return

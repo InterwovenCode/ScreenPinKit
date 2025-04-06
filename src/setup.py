@@ -17,7 +17,7 @@ setuptools.setup(
     description="A mini screenshot and annotation tool that incorporates ideas from Snipaste, Excalidraw, ShareX, and others.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    license="GPLv3",
+    license="MIT",
     url="https://github.com/YaoXuanZhi/ScreenPinKit",
     packages=setuptools.find_packages(),
     install_requires=install_requires,
@@ -26,10 +26,11 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        'License :: OSI Approved :: MIT License',
         "Operating System :: OS Independent",
     ],
     project_urls={
+        "Youtube": "https://www.youtube.com/playlist?list=PL3uuKTASzjRYNdl7wYlgUd7agQIA2_y5V",
         "Documentation": "https://github.com/YaoXuanZhi/ScreenPinKit/wiki",
         "Source Code": "https://github.com/YaoXuanZhi/ScreenPinKit",
         "Bug Tracker": "https://github.com/YaoXuanZhi/ScreenPinKit/issues",

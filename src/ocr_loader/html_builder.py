@@ -1,8 +1,14 @@
 import html
 from PIL import ImageFont
-from .GapTree_Sort_Algorithm.preprocessing import linePreprocessing
-from .GapTree_Sort_Algorithm.gap_tree import GapTree
 
+IsSupportGapTree = True
+
+try:
+    from .GapTree_Sort_Algorithm.preprocessing import linePreprocessing
+    from .GapTree_Sort_Algorithm.gap_tree import GapTree
+    IsSupportGapTree = True
+except ImportError:
+    IsSupportGapTree = False
 
 def calculate_best_font_size(
     text, font_path, max_width, max_height, initial_font_size=5
@@ -455,7 +461,10 @@ def handle_gap_tree_sort_for_box_infos(box_infos):
 
 
 def build_svg_html_by_gap_tree_sort(font_path, width, height, box_infos, dpi_scale=1):
-    sorted_box_infos = handle_gap_tree_sort_for_box_infos(box_infos)
+    if IsSupportGapTree == True:
+        sorted_box_infos = handle_gap_tree_sort_for_box_infos(box_infos)
+    else:
+        sorted_box_infos = box_infos
     return build_svg_html(
         font_path=font_path,
         width=width,
@@ -466,7 +475,10 @@ def build_svg_html_by_gap_tree_sort(font_path, width, height, box_infos, dpi_sca
 
 
 def build_origin_html_by_gap_tree_sort(width, height, box_infos, dpi_scale=1):
-    sorted_box_infos = handle_gap_tree_sort_for_box_infos(box_infos)
+    if IsSupportGapTree == True:
+        sorted_box_infos = handle_gap_tree_sort_for_box_infos(box_infos)
+    else:
+        sorted_box_infos = box_infos
     return build_origin_html(
         width=width, height=height, box_infos=sorted_box_infos, dpi_scale=dpi_scale
     )

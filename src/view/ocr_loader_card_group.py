@@ -18,6 +18,9 @@ class OcrLoaderTypeSettingCard(OptionsSettingCard):
         content = None
         texts = OcrLoaderTypeSettingCard.getLoaderDisplayNames()
         texts2 = OcrLoaderTypeSettingCard.getLoaderNames()
+        if len(texts2) == 0:
+            texts = ["Nothing"]
+            texts2 = [""]
         cfg.useOcrLoaderType.defaultValue = texts2[0]
         cfg.useOcrLoaderType.validator = OptionsValidator(texts2)
         super().__init__(

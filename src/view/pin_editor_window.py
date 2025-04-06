@@ -9,6 +9,7 @@ from canvas_editor import DrawActionEnum
 from common import cfg, ScreenShotIcon
 from plugin import *
 from .painter_interface import PainterInterface
+from ocr_loader import *
 
 
 class PinEditorWindow(PinWindow):
@@ -68,8 +69,12 @@ class PinEditorWindow(PinWindow):
                 self.tr("Mouse through"),
                 triggered=self.clickThrough,
             ),
-            Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.startOcr),
         ]
+
+        if len(ocrLoaderMgr.loaderDict) > 0:
+            actions.append(
+                Action(ScreenShotIcon.OCR, self.tr("OCR"), triggered=self.startOcr),
+            )
         pluginMgr.handleEvent(
             GlobalEventEnum.RegisterContextMenuEvent,
             actions=actions,
