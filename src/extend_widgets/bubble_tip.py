@@ -222,11 +222,20 @@ class BubbleTipManager(QObject):
     def __init__(self):
         super().__init__()
 
+    def getFullAvailableGeometry(self):
+        '''兼容多屏'''
+        screens = QApplication.screens()
+        screens.sort(key=lambda screen: screen.availableGeometry().x())
+
+        geometryTopLeft = screens[0].availableGeometry().topLeft()
+        geometryBottomRight = screens[len(screens) - 1].availableGeometry().bottomRight()
+        return QRect(geometryTopLeft, geometryBottomRight)
+
     def position(self, tip: BubbleTip) -> QPoint:
         pos = self._pos(tip)
         x, y = pos.x(), pos.y()
 
-        rect = QApplication.screenAt(QCursor.pos()).availableGeometry()
+        rect = self.getFullAvailableGeometry()
         x = min(
             max(-2, x) if QCursor().pos().x() >= 0 else x,
             rect.width() - tip.width() - 4,
@@ -292,7 +301,7 @@ class TopTailBubbleTipManager(BubbleTipManager):
         return QPoint(x, y)
 
     def tryCorrectBound(self, tip: BubbleTip):
-        rect = QApplication.screenAt(QCursor.pos()).availableGeometry()
+        rect = self.getFullAvailableGeometry()
         maxPosY = rect.height() - tip.height() - 4
 
         target = tip.target
