@@ -192,7 +192,8 @@ class PinEditorWindow(PinWindow):
                         self._lastScaleFactor = 1
                     self.__setWindowScaleFactor(self._lastScaleFactor)
                 else:
-                    self.close()
+                    if self.painterWidget.tryQuitDraw():
+                        self.close()
 
     def wheelEvent(self, event: QWheelEvent) -> None:
         if (
