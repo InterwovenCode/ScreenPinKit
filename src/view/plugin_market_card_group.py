@@ -239,7 +239,8 @@ class ItemCard(ElevatedCardWidget):
         else:
             self.setItemState(EnumItemCardState.DeActiveState)
 
-        self.attachWidget.reloadUISignal.emit()
+        # 增量更新：只根据配置刷新已加载插件的启用状态，避免全量 reload
+        pluginMgr.refreshPluginsEnableState()
 
 class ItemCardView(QWidget):
     """ Item card view """

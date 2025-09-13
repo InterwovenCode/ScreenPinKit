@@ -157,6 +157,27 @@ class PluginManager(QObject):
         self.pluginGroupDict.clear()
         self.loadPlugins()
 
+    def refreshPluginsEnableState(self):
+        '''根据配置增量更新已加载插件的启用状态，而不是全量卸载再重载'''
+        from common import logger
+        for name, plugin0 in self.pluginDict.items():
+            plugin: PluginInterface = plugin0
+            shouldEnable = pluginCfg.isOnByPluginName(name)
+
+            # 启用状态发生变化时才更新，避免重复触发 onChangeEnabled
+            if shouldEnable and not plugin.enable:
+                try:
+                    # 先标记启用，再执行插件自己的初始化逻辑
+                    plugin.enable = True
+                    plugin.onLoaded()
+                except Exception as e:
+                    logger.error("\n".join(e.args), logger_name="plugin")
+            elif (not shouldEnable) and plugin.enable:
+                try:
+                    plugin.enable = False
+                except Exception as e:
+                    logger.error("\n".join(e.args), logger_name="plugin")
+
     def installNetworkPlugin(self, parentWidget:QWidget, targetPluginName: str, gitUrl: str) -> bool:
         try:
             self.__installNetworkPlugin(targetPluginName, gitUrl)
