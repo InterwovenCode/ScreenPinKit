@@ -157,6 +157,33 @@ class PluginManager(QObject):
         self.pluginGroupDict.clear()
         self.loadPlugins()
 
+    def syncPluginsIncremental(self):
+        '''根据当前磁盘上的插件目录，增量同步插件列表（用于安装/卸载后的刷新）'''
+        from common import logger
+        logger.info("开始增量同步插件", logger_name="plugin")
+
+        # 1. 移除已经被物理删除的插件目录（通常是网络插件被卸载）
+        removed_names = []
+        for name, root in list(self.pluginGroupDict.items()):
+            if not os.path.isdir(root):
+                removed_names.append(name)
+                plugin = self.pluginDict.get(name)
+                if plugin is not None and plugin.enable:
+                    plugin.enable = False
+                self.pluginDict.pop(name, None)
+                self.pluginGroupDict.pop(name, None)
+
+        # 2. 重新扫描内部/外部插件目录，补充新增的插件
+        #    已存在于 pluginDict 的插件会在 __filterInterface 中被跳过，因此不会被重新实例化
+        self.__loadPluginsInside()
+        self.__loadPluginsOutside()
+        self.__clearInvalidPluginCfgs()
+
+        logger.info(
+            f"增量同步完成，本地插件数 {len(self.pluginDict)}，移除 {len(removed_names)} 个插件",
+            logger_name="plugin",
+        )
+
     def refreshPluginsEnableState(self):
         '''根据配置增量更新已加载插件的启用状态，而不是全量卸载再重载'''
         from common import logger

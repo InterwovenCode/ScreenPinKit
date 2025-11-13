@@ -146,10 +146,13 @@ class ItemCard(ElevatedCardWidget):
         if not isOk:
             return
 
+        # 更新当前卡片为“未安装”状态
         self.setUnInstalledUI()
         self.setItemState(EnumItemCardState.UninstallState)
 
-        self.attachWidget.reloadUISignal.emit()
+        # 增量同步插件列表并刷新启用状态，避免整页 UI 重建
+        pluginMgr.syncPluginsIncremental()
+        pluginMgr.refreshPluginsEnableState()
 
     def onDownloadButtonClicked(self):
         parent = self.parentWidget()
@@ -160,10 +163,13 @@ class ItemCard(ElevatedCardWidget):
         if not isOk:
             return
 
+        # 立即把当前卡片切换为“已安装并启用”状态
         self.setInstalledUI(True)
         self.setItemState(EnumItemCardState.ActiveState)
 
-        self.attachWidget.reloadUISignal.emit()
+        # 增量同步插件列表并刷新启用状态，加载新安装的插件实例
+        pluginMgr.syncPluginsIncremental()
+        pluginMgr.refreshPluginsEnableState()
 
     def setItemState(self, newState: EnumItemCardState):
         if self.itemState == newState:
@@ -325,7 +331,8 @@ class ItemCardView(QWidget):
         self.showAllPlugins()
 
     def reloadUI(self):
-        pluginMgr.reloadPlugins()
+        # 安装/卸载插件后，仅对插件列表做增量同步，避免全量卸载再重载
+        pluginMgr.syncPluginsIncremental()
         self.flowLayout.removeAllWidgets()
 
         for card in self.cards:
