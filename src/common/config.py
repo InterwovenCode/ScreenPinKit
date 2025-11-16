@@ -298,7 +298,7 @@ class Config(QConfig):
         font = QFont(self.bubbleTextEditToolbarFontFamily.value)
         return font
 
-    @textEditToolbarFont.setter
+    @bubbleTextEditToolbarFont.setter
     def bubbleTextEditToolbarFont(self, font: QFont):
         self.bubbleTextEditToolbarFontFamily.value = font.family()
         self.save()
