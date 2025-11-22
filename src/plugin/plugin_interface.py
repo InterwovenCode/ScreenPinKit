@@ -1,9 +1,13 @@
-import os, inspect
-from PyQt5.QtWidgets import QApplication, QStyle
-from PyQt5.QtGui import QIcon
+import inspect
 from abc import ABC, abstractmethod
 from enum import Enum
-from common import *
+from typing import Any, List
+
+from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtWidgets import QApplication, QStyle
+
+from common import logger
+
 
 class GlobalEventEnum(Enum):
     OcrStartEvent = 1
@@ -31,8 +35,8 @@ class GlobalEventEnum(Enum):
 
 
 class PluginInterface(ABC):
-    def __init__(self):
-        self._enable = False
+    def __init__(self) -> None:
+        self._enable: bool = False
 
     @property
     @abstractmethod
@@ -40,7 +44,7 @@ class PluginInterface(ABC):
         pass
 
     @property
-    def displayName(self):
+    def displayName(self) -> str:
         return "Unknown"
 
     @property
@@ -61,19 +65,19 @@ class PluginInterface(ABC):
         return "http://interwovencode.xyz/"
 
     @property
-    def tags(self) -> list:
+    def tags(self) -> List[str]:
         return []
 
     @property
-    def previewImages(self) -> list:
+    def previewImages(self) -> List[QPixmap]:
         return []
 
     @property
-    def supportSystems(self) -> list:
+    def supportSystems(self) -> List[str]:
         return ["win32", "darwin", "linux"]
 
     @property
-    def icon(self) -> any:
+    def icon(self) -> QIcon:
         return QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarMenuButton)
 
     @property
@@ -85,26 +89,26 @@ class PluginInterface(ABC):
         return True
 
     @enable.setter
-    def enable(self, value: bool):
+    def enable(self, value: bool) -> None:
         if self._enable == value:
             return
         self._enable = value
         self.onChangeEnabled()
 
-    def onLoaded(self):
+    def onLoaded(self) -> None:
         pass
 
-    def onChangeEnabled(self):
+    def onChangeEnabled(self) -> None:
         # self.log(f"onChangeEnabled ===> {self.name} ===> {self.enable}")
         pass
 
-    def handleEvent(self, eventName: GlobalEventEnum, *args, **kwargs):
+    def handleEvent(self, eventName: GlobalEventEnum, *args, **kwargs) -> None:
         # self.log(f"[{self.name}]：{eventName} ==> {args} {kwargs}")
         pass
 
-    def log(self, message):
+    def log(self, message: str) -> None:
         frame = inspect.currentframe().f_back
         evalFilename = frame.f_code.co_filename
         evalLineNumber = frame.f_lineno
         final = f"{self.name}|{evalFilename}:{evalLineNumber} ==> {message}"
-        logger.info(final, logger_name=f"plugin")
+        logger.info(final, logger_name="plugin")

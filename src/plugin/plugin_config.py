@@ -1,5 +1,8 @@
 from enum import Enum
+from typing import Any, Dict
+
 from extend_widgets import *
+
 
 class EnumItemCardState(Enum):
     NoneState = -1 # 未知
@@ -11,23 +14,23 @@ class PluginConfigItem(ConfigItem):
     """ Config item with options """
 
     @property
-    def options(self):
+    def options(self) -> Any:
         return self.validator.options
 
     @property
-    def isIgnored(self):
+    def isIgnored(self) -> bool:
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.__class__.__name__}[options={self.options}, value={self.value}]'
 
 class PluginConfigItemEx(PluginConfigItem):
     """ Config item with options """
-    def __init__(self, group, name, default):
+    def __init__(self, group: str, name: str, default: EnumItemCardState) -> None:
         super().__init__(group, name, default, OptionsValidator(EnumItemCardState), EnumSerializer(EnumItemCardState))
 
     @property
-    def isIgnored(self):
+    def isIgnored(self) -> bool:
         if self.value in [EnumItemCardState.NoneState, EnumItemCardState.UninstallState]:
             return True
         return False
@@ -38,16 +41,16 @@ class QPluginConfig(QObject):
     参考QConfig实现
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.file = Path("config/config.json")
         self._cfg = self
 
-    def get(self, item):
+    def get(self, item: ConfigItem) -> Any:
         """ get the value of config item """
         return item.value
 
-    def set(self, item, value, save=True, copy=True):
+    def set(self, item: ConfigItem, value: Any, save: bool = True, copy: bool = True) -> None:
         """ set the value of config item
 
         Parameters
@@ -76,9 +79,9 @@ class QPluginConfig(QObject):
         if save:
             self.save()
 
-    def toDict(self, serialize=True):
+    def toDict(self, serialize: bool = True) -> Dict[str, Any]:
         """ convert config items to `dict` """
-        items = {}
+        items: Dict[str, Any] = {}
         for name in dir(self._cfg):
             item = getattr(self._cfg, name)
             if not isinstance(item, ConfigItem):
@@ -100,14 +103,14 @@ class QPluginConfig(QObject):
 
         return items
 
-    def save(self):
+    def save(self) -> None:
         """ save config """
         self._cfg.file.parent.mkdir(parents=True, exist_ok=True)
         with open(self._cfg.file, "w", encoding="utf-8") as f:
             json.dump(self._cfg.toDict(), f, ensure_ascii=False, indent=4)
 
     @exceptionHandler()
-    def load(self, file=None, config=None):
+    def load(self, file=None, config=None) -> None:
         """ load config
 
         Parameters
@@ -131,7 +134,7 @@ class QPluginConfig(QObject):
             cfg = {}
 
         # map config items'key to item
-        items = {}
+        items: Dict[str, ConfigItem] = {}
         for name in dir(self._cfg):
             item = getattr(self._cfg, name)
             if isinstance(item, ConfigItem):

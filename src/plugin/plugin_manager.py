@@ -1,6 +1,11 @@
-import importlib.util
-import os, sys, glob, re, platform
 import importlib
+import importlib.util
+import os
+import platform
+import re
+import sys
+import traceback
+from typing import Dict, List, Optional, Any
 from qfluentwidgets import (
     InfoBar,
     InfoBarIcon,
@@ -8,9 +13,9 @@ from qfluentwidgets import (
     FluentIcon as FIF,
     TransparentToolButton,
 )
-from .plugin_interface import PluginInterface, GlobalEventEnum
+from .plugin_interface import GlobalEventEnum, PluginInterface
 from .plugin_inst_config import PluginInstConfig
-from .plugin_config import *
+from .plugin_config import PluginConfigItemEx, pluginCfg
 from common import *
 from misc import *
 
@@ -23,21 +28,27 @@ class CustomLoader(importlib.abc.Loader):
 
 
 class PluginManager(QObject):
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional["QObject"] = None) -> None:
         super().__init__(parent)
-        self.pluginDict = {}
-        self.pluginGroupDict = {}
+        # 已加载插件实例：key 为插件名，value 为插件实例
+        self.pluginDict: Dict[str, PluginInterface] = {}
+        # 插件名到所在文件夹路径的映射
+        self.pluginGroupDict: Dict[str, str] = {}
         pluginCfg.load("plugin_settings.json")
 
-    def loadPlugins(self):
+    def loadPlugins(self) -> None:
         from common import logger
+
         logger.info("开始加载插件", logger_name="plugin")
         self.__loadPluginsInside()
         self.__loadPluginsOutside()
         self.__clearInvalidPluginCfgs()
-        logger.info(f"插件加载完成，共加载 {len(self.pluginDict)} 个插件", logger_name="plugin")
+        logger.info(
+            f"插件加载完成，共加载 {len(self.pluginDict)} 个插件",
+            logger_name="plugin",
+        )
 
-    def __clearInvalidPluginCfgs(self):
+    def __clearInvalidPluginCfgs(self) -> None:
         '''清除无效的插件配置(考虑到存在绕过插件UI而直接本地删除插件目录的情况，得兼容下)'''
         isSave = False
         for attrName in dir(pluginCfg):
@@ -49,22 +60,22 @@ class PluginManager(QObject):
         if isSave:
             pluginCfg.save()
 
-    def __loadPluginsInside(self):
+    def __loadPluginsInside(self) -> None:
         internalPath = os.path.join(OsHelper.getInternalPath(), "internal_deps/internal_plugins")
         self.__loadPluginsByFolder(internalPath)
 
-    def __loadPluginsOutside(self):
+    def __loadPluginsOutside(self) -> None:
         folderPath = cfg.get(cfg.pluginsFolder)
         self.__loadPluginsByFolder(folderPath)
 
-    def __loadPluginsByText(self, moduleName, text):
+    def __loadPluginsByText(self, moduleName: str, text: str) -> None:
         loader = CustomLoader(text)
         spec = importlib.util.spec_from_loader(moduleName, loader)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         self.__filterInterface(module)
 
-    def __loadPluginsByFilePath(self, moduleName, filePath):
+    def __loadPluginsByFilePath(self, moduleName: str, filePath: str) -> None:
         file = QFile(filePath)
         # 打开文件，只读模式
         if file.open(QIODevice.ReadOnly | QIODevice.Text):
@@ -83,7 +94,7 @@ class PluginManager(QObject):
     #     spec.loader.exec_module(module)
     #     self.__filterInterface(module)
 
-    def __loadPluginsByFolder(self, folderPath):
+    def __loadPluginsByFolder(self, folderPath: str) -> None:
         '''遍历指定路径下所有包含PluginInterface的py文件，并作为插件导入'''
         for root, dirs, files in os.walk(folderPath):
             isAppendSysPath = False
@@ -108,17 +119,19 @@ class PluginManager(QObject):
                             try:
                                 module = importlib.import_module(moduleName)
                                 pluginInst = self.__filterInterface(module)
-                                if pluginInst != None:
+                                if pluginInst is not None:
                                     self.pluginGroupDict[pluginInst.name] = root
-                            except Exception as e:
-                                errorMessage = "\n".join(e.args)
-                                logger.error(f"{moduleName} load fail：{errorMessage}")
+                            except Exception:
+                                logger.error(
+                                    f"{moduleName} load fail\n{traceback.format_exc()}",
+                                    logger_name="plugin",
+                                )
 
-    def __loadPluginByModuleName(self, moduleName):
+    def __loadPluginByModuleName(self, moduleName: str) -> None:
         module = importlib.import_module(moduleName)
         self.__filterInterface(module)
 
-    def __filterInterface(self, module):
+    def __filterInterface(self, module: Any) -> Optional[PluginInterface]:
         for attrName in dir(module):
             attr = getattr(module, attrName)
             if (
@@ -129,25 +142,37 @@ class PluginManager(QObject):
             ):
                 pluginInst = attr()
                 if pluginInst.name in self.pluginDict:
+                    # 已存在同名插件实例时跳过，避免重复加载
                     continue
 
                 pluginInst.enable = pluginCfg.isOnByPluginName(pluginInst.name)
                 self.pluginDict[pluginInst.name] = pluginInst
                 if pluginInst.enable:
-                    pluginInst.onLoaded()
+                    try:
+                        pluginInst.onLoaded()
+                    except Exception:
+                        logger.error(
+                            f"插件 {pluginInst.name} onLoaded 失败\n{traceback.format_exc()}",
+                            logger_name="plugin",
+                        )
 
                 return pluginInst
 
-    def handleEvent(self, eventName: GlobalEventEnum, *args, **kwargs):
+        return None
+
+    def handleEvent(self, eventName: GlobalEventEnum, *args, **kwargs) -> None:
         for plugin0 in self.pluginDict.values():
             plugin: PluginInterface = plugin0
             if plugin.enable:
                 try:
                     plugin.handleEvent(eventName, *args, **kwargs)
-                except Exception as e:
-                    logger.error("\n".join(e.args))
+                except Exception:
+                    logger.error(
+                        f"插件 {plugin.name} 处理事件 {eventName} 失败\n{traceback.format_exc()}",
+                        logger_name="plugin",
+                    )
 
-    def reloadPlugins(self):
+    def reloadPlugins(self) -> None:
         for plugin0 in self.pluginDict.values():
             plugin: PluginInterface = plugin0
             if plugin.enable:                
@@ -157,13 +182,13 @@ class PluginManager(QObject):
         self.pluginGroupDict.clear()
         self.loadPlugins()
 
-    def syncPluginsIncremental(self):
+    def syncPluginsIncremental(self) -> None:
         '''根据当前磁盘上的插件目录，增量同步插件列表（用于安装/卸载后的刷新）'''
         from common import logger
         logger.info("开始增量同步插件", logger_name="plugin")
 
         # 1. 移除已经被物理删除的插件目录（通常是网络插件被卸载）
-        removed_names = []
+        removed_names: List[str] = []
         for name, root in list(self.pluginGroupDict.items()):
             if not os.path.isdir(root):
                 removed_names.append(name)
@@ -184,7 +209,7 @@ class PluginManager(QObject):
             logger_name="plugin",
         )
 
-    def refreshPluginsEnableState(self):
+    def refreshPluginsEnableState(self) -> None:
         '''根据配置增量更新已加载插件的启用状态，而不是全量卸载再重载'''
         from common import logger
         for name, plugin0 in self.pluginDict.items():
@@ -197,15 +222,26 @@ class PluginManager(QObject):
                     # 先标记启用，再执行插件自己的初始化逻辑
                     plugin.enable = True
                     plugin.onLoaded()
-                except Exception as e:
-                    logger.error("\n".join(e.args), logger_name="plugin")
+                except Exception:
+                    logger.error(
+                        f"启用插件 {name} 失败\n{traceback.format_exc()}",
+                        logger_name="plugin",
+                    )
             elif (not shouldEnable) and plugin.enable:
                 try:
                     plugin.enable = False
-                except Exception as e:
-                    logger.error("\n".join(e.args), logger_name="plugin")
+                except Exception:
+                    logger.error(
+                        f"禁用插件 {name} 失败\n{traceback.format_exc()}",
+                        logger_name="plugin",
+                    )
 
-    def installNetworkPlugin(self, parentWidget:QWidget, targetPluginName: str, gitUrl: str) -> bool:
+    def installNetworkPlugin(
+        self,
+        parentWidget: "QWidget",
+        targetPluginName: str,
+        gitUrl: str,
+    ) -> bool:
         try:
             self.__installNetworkPlugin(targetPluginName, gitUrl)
             return True
@@ -213,13 +249,17 @@ class PluginManager(QObject):
             if hasattr(e, "stderr"):
                 _importErrorMsg = e.stderr
             else:
-                _importErrorMsg = "\n".join(e.args)
+                _importErrorMsg = "\n".join(e.args) or str(e)
+            logger.error(
+                f"安装插件 {targetPluginName} 失败\n{traceback.format_exc()}",
+                logger_name="plugin",
+            )
             self.__showErrBar(parentWidget, "插件安装失败", _importErrorMsg)
             return False
 
-    def __installNetworkPlugin(self, targetPluginName: str, gitUrl: str):
+    def __installNetworkPlugin(self, targetPluginName: str, gitUrl: str) -> None:
         pluginInst = self.pluginDict.get(targetPluginName)
-        if not pluginInst == None:
+        if pluginInst is not None:
             return
 
         outsidePluginFolderPath = cfg.get(cfg.pluginsFolder)
@@ -229,7 +269,11 @@ class PluginManager(QObject):
             fullCmd = f"cd {outsidePluginFolderPath} ; git clone {gitUrl}"
         OsHelper.executeSystemCommand(fullCmd)
 
-    def unInstallNetworkPlugin(self, parentWidget:QWidget, targetPluginName: str) -> bool:
+    def unInstallNetworkPlugin(
+        self,
+        parentWidget: "QWidget",
+        targetPluginName: str,
+    ) -> bool:
         try:
             self.__unInstallNetworkPlugin(targetPluginName)
             return True
@@ -237,12 +281,16 @@ class PluginManager(QObject):
             if hasattr(e, "stderr"):
                 _importErrorMsg = e.stderr
             else:
-                _importErrorMsg = "\n".join(e.args)
+                _importErrorMsg = "\n".join(e.args) or str(e)
+            logger.error(
+                f"卸载插件 {targetPluginName} 失败\n{traceback.format_exc()}",
+                logger_name="plugin",
+            )
             self.__showErrBar(parentWidget, "插件卸载失败", _importErrorMsg)
             return False
 
-    def __unInstallNetworkPlugin(self, targetPluginName: str):
-        dirPath:str = self.pluginGroupDict[targetPluginName]
+    def __unInstallNetworkPlugin(self, targetPluginName: str) -> None:
+        dirPath: str = self.pluginGroupDict[targetPluginName]
 
         if platform.system() == "Windows":
             dirPath = dirPath.replace("/", "\\")
@@ -252,7 +300,7 @@ class PluginManager(QObject):
             fullCmd = f"rm -rf {dirPath}"
         OsHelper.executeSystemCommand(fullCmd)
 
-    def __showErrBar(self, parentWidget:QWidget, title:str, errMsg:str):
+    def __showErrBar(self, parentWidget: "QWidget", title: str, errMsg: str) -> None:
         infoBar = InfoBar(
             icon=InfoBarIcon.ERROR,
             title=title,
@@ -272,8 +320,9 @@ class PluginManager(QObject):
         infoBar.addWidget(copyButton)
         infoBar.show()
 
-    def copyText(self, infoBar: InfoBar):
+    def copyText(self, infoBar: InfoBar) -> None:
         text = infoBar.contentLabel.text()
         QApplication.clipboard().setText(text)
+
 
 pluginMgr = PluginManager()

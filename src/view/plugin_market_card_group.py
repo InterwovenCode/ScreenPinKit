@@ -4,6 +4,7 @@ from sortedcontainers import SortedDict
 from extend_widgets import *
 from plugin import *
 from .plugin_card_view import PluginCardView, PluginCardViewWithScrollArea
+from plugin.plugin_config import EnumItemCardState
 
 class LineEdit(SearchLineEdit):
     """ Search line edit """
