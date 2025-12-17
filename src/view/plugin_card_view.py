@@ -1,8 +1,32 @@
 # coding=utf-8
-from extend_widgets import *
-from plugin import *
-from PyQt5.QtWebEngineWidgets import *
-from PyQt5.QtWebChannel import *
+import sys
+from typing import List
+
+from PyQt5.QtCore import Qt, QSize, QUrl
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QTextBrowser, QLabel
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings
+from qfluentwidgets import (
+    IconWidget,
+    PushButton,
+    BodyLabel,
+    HyperlinkLabel,
+    TitleLabel,
+    SimpleCardWidget,
+    HyperlinkButton,
+    PillPushButton,
+    TransparentToolButton,
+    FluentIcon,
+    HorizontalFlipView,
+    MaskDialogBase,
+    HeaderCardWidget,
+    VerticalSeparator,
+    InfoBarIcon,
+    SingleDirectionScrollArea,
+    setFont,
+)
+
+from plugin import PluginInterface
 
 class TagGroupWidget(QWidget):
     """ Tags widget """

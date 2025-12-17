@@ -2,7 +2,6 @@
 from canvas_item import *
 from common import *
 from misc import *
-from plugin import *
 
 
 class ScreenShotWindow(QWidget):

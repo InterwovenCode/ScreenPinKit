@@ -1,10 +1,36 @@
 # coding=utf-8
-import time
+import time, sys
+from typing import List
+
+from PyQt5.QtCore import Qt, QSize, QUrl, pyqtSignal
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFrame
 from sortedcontainers import SortedDict
-from extend_widgets import *
-from plugin import *
+from qfluentwidgets import (
+    SearchLineEdit,
+    PushButton,
+    ElevatedCardWidget,
+    TitleLabel,
+    HyperlinkLabel,
+    BodyLabel,
+    PillPushButton,
+    SmoothScrollArea,
+    FlowLayout,
+    SettingCardGroup,
+    TransparentToolButton,
+    ScrollArea,
+    FluentIcon,
+    SwitchButton,
+    icon,
+    setFont,
+)
+
+from common import cfg, FuzzyMatch
+from plugin import pluginMgr, PluginInterface
+from plugin.plugin_inst_config import PluginInstConfig
+from plugin.network_item_loader import NetworkLoaderManager
+from plugin.plugin_config import EnumItemCardState, PluginConfigItemEx, pluginCfg
 from .plugin_card_view import PluginCardView, PluginCardViewWithScrollArea
-from plugin.plugin_config import EnumItemCardState
 
 class LineEdit(SearchLineEdit):
     """ Search line edit """

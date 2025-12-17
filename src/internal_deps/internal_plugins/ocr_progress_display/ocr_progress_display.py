@@ -1,4 +1,9 @@
-from plugin import *
+import glob
+import os
+
+from PyQt5.QtCore import Qt, QPoint, QSize
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QWidget
 from qfluentwidgets import (
     InfoBar,
     InfoBarIcon,
@@ -7,6 +12,8 @@ from qfluentwidgets import (
     FluentIcon as FIF,
     TransparentToolButton,
 )
+
+from plugin import PluginInterface, GlobalEventEnum
 
 class OCRProgressDisplay(PluginInterface):
     def __init__(self):

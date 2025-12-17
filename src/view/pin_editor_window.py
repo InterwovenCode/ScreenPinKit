@@ -7,9 +7,9 @@ from canvas_item import *
 from canvas_item.canvas_util import ZoomComponent
 from canvas_editor import DrawActionEnum
 from common import cfg, ScreenShotIcon
-from plugin import *
+from plugin import pluginMgr, GlobalEventEnum
 from .painter_interface import PainterInterface
-from ocr_loader import *
+from ocr_loader.ocr_loader_manager import ocrLoaderMgr
 
 
 class PinEditorWindow(PinWindow):

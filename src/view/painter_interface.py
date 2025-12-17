@@ -5,6 +5,7 @@ from canvas_editor import *
 from canvas_item import *
 from toolbar import *
 from pdf_viewer import *
+from plugin import pluginMgr, GlobalEventEnum
 from plugin import *
 from ocr_loader import *
 

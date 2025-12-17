@@ -1,10 +1,20 @@
 import sys, os
-from common import *
-from view import *
-from manager import *
-from version import *
-from plugin import *
-from ocr_loader import *
+
+from PyQt5.QtCore import QCoreApplication, QTranslator, Qt
+from PyQt5.QtWidgets import QApplication, QWidget
+from qfluentwidgets import Action, FluentTranslator, Icon
+
+from common import cfg, logger, ScreenShotIcon
+from common.hotkey import KeyboardEx
+from view.system_tray_icon import SystemTrayIcon
+from view.screen_shot_window import ScreenShotWindow
+from view.screen_paint_window import ScreenPaintWindow
+from view.setting_window import SettingWindow
+from manager.pin_window_manager import PinWindowManager
+from base.app_dpi_helper import AppDpiHelper
+from version.version import APP_NAME
+from plugin import pluginMgr, GlobalEventEnum
+from ocr_loader.ocr_loader_manager import ocrLoaderMgr
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):

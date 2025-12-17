@@ -6,6 +6,9 @@ import re
 import sys
 import traceback
 from typing import Dict, List, Optional, Any
+
+from PyQt5.QtCore import QFile, QIODevice, QObject, QTextStream, Qt, QSize
+from PyQt5.QtWidgets import QApplication, QWidget
 from qfluentwidgets import (
     InfoBar,
     InfoBarIcon,
@@ -37,8 +40,6 @@ class PluginManager(QObject):
         pluginCfg.load("plugin_settings.json")
 
     def loadPlugins(self) -> None:
-        from common import logger
-
         logger.info("开始加载插件", logger_name="plugin")
         self.__loadPluginsInside()
         self.__loadPluginsOutside()
@@ -184,7 +185,6 @@ class PluginManager(QObject):
 
     def syncPluginsIncremental(self) -> None:
         '''根据当前磁盘上的插件目录，增量同步插件列表（用于安装/卸载后的刷新）'''
-        from common import logger
         logger.info("开始增量同步插件", logger_name="plugin")
 
         # 1. 移除已经被物理删除的插件目录（通常是网络插件被卸载）
@@ -211,7 +211,6 @@ class PluginManager(QObject):
 
     def refreshPluginsEnableState(self) -> None:
         '''根据配置增量更新已加载插件的启用状态，而不是全量卸载再重载'''
-        from common import logger
         for name, plugin0 in self.pluginDict.items():
             plugin: PluginInterface = plugin0
             shouldEnable = pluginCfg.isOnByPluginName(name)
