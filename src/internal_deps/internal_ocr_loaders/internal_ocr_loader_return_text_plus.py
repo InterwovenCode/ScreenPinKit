@@ -1,9 +1,14 @@
 import os, sys
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "."))
 from ocr_loader import *
 from PIL import Image
 import numpy as np
+
+
+def get_ocr_dpi_scale():
+    return float(os.environ.get("SCREENPINKIT_OCR_DPI_SCALE", "1"))
 
 try:
     from PaddleOCRModel.PaddleOCRModel import det_rec_functions as OcrDetector
@@ -14,6 +19,9 @@ except ImportError as e:
 
 
 def qpixmapToMatlike(qpixmap: QPixmap):
+    if isinstance(qpixmap, np.ndarray):
+        return qpixmap
+
     # 将 QPixmap 转换为 QImage
     qimage = qpixmap.toImage()
 
@@ -54,9 +62,18 @@ class InternalOcrLoader_ReturnTextPlus(OcrLoaderInterface):
         return EnumOcrReturnType.Text
 
     def ocr(self, pixmap: QPixmap):
+        start_time = time.time()
+        print("[ocr-loader:text-plus] ocr start", flush=True)
         boxes, texts, scores = self.__ocr(pixmap)
-        width = pixmap.size().width()
-        height = pixmap.size().height()
+        print(
+            f"[ocr-loader:text-plus] raw ocr returned boxes={len(boxes)} texts={len(texts)} elapsed={time.time() - start_time:.3f}s",
+            flush=True,
+        )
+        if isinstance(pixmap, np.ndarray):
+            height, width = pixmap.shape[:2]
+        else:
+            width = pixmap.size().width()
+            height = pixmap.size().height()
         boxInfos = []
         for i, box in enumerate(boxes):
             text = texts[i]
@@ -65,12 +82,30 @@ class InternalOcrLoader_ReturnTextPlus(OcrLoaderInterface):
         font_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "PaddleOCRModel/arial.ttf"
         )
-        htmlContent = build_svg_html_by_gap_tree_sort(
-            font_path=font_path,
-            width=width,
-            height=height,
-            box_infos=boxInfos,
-            dpi_scale=CanvasUtil.getDevicePixelRatio(),
+        print(
+            f"[ocr-loader:text-plus] building html width={width} height={height} boxes={len(boxInfos)}",
+            flush=True,
+        )
+        if len(boxInfos) == 0:
+            print("[ocr-loader:text-plus] no boxes, skip gap tree sort", flush=True)
+            htmlContent = build_svg_html(
+                font_path=font_path,
+                width=width,
+                height=height,
+                box_infos=boxInfos,
+                dpi_scale=get_ocr_dpi_scale(),
+            )
+        else:
+            htmlContent = build_svg_html_by_gap_tree_sort(
+                font_path=font_path,
+                width=width,
+                height=height,
+                box_infos=boxInfos,
+                dpi_scale=get_ocr_dpi_scale(),
+            )
+        print(
+            f"[ocr-loader:text-plus] html built len={len(htmlContent)} elapsed={time.time() - start_time:.3f}s",
+            flush=True,
         )
         return htmlContent
 
@@ -86,11 +121,22 @@ class InternalOcrLoader_ReturnTextPlus(OcrLoaderInterface):
             raise Exception(_importErrorMsg)
 
         matlike = qpixmapToMatlike(pixmap)
+        print(f"[ocr-loader:text-plus] matlike shape={matlike.shape}", flush=True)
 
         ocr_sys = OcrDetector(matlike, use_dnn=False, version=3)  # 支持v2和v3版本的
+        print("[ocr-loader:text-plus] get_boxes start", flush=True)
         dt_boxes = ocr_sys.get_boxes()
+        box_count = len(dt_boxes[0]) if len(dt_boxes) > 0 else 0
+        print(f"[ocr-loader:text-plus] get_boxes end count={box_count}", flush=True)
+        print("[ocr-loader:text-plus] recognition_img start", flush=True)
         results, results_info = ocr_sys.recognition_img(dt_boxes)
+        print(f"[ocr-loader:text-plus] recognition_img end results={len(results)}", flush=True)
+        print("[ocr-loader:text-plus] get_match_text_boxes start", flush=True)
         match_text_boxes = ocr_sys.get_match_text_boxes(dt_boxes[0], results)
+        print(
+            f"[ocr-loader:text-plus] get_match_text_boxes end count={len(match_text_boxes)}",
+            flush=True,
+        )
 
         boxes = []
         txts = []

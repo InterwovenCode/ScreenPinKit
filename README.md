@@ -18,7 +18,7 @@
   </a>
 
   <a href="">
-    <img src="https://img.shields.io/badge/Python-3.8,3.9-aff.svg">
+    <img src="https://img.shields.io/badge/Python-3.12.10-aff.svg">
   </a>
 
   <a href="./LICENSE">
@@ -44,7 +44,7 @@ English | <a href="./README.zh_cn.md">简体中文</a>
 
 ## Installation
 ```shell
-# Currently only recommended for Python 3.8 and Python 3.9
+# Recommended Python version: 3.12.10
 ## Source installation
 #cd src/
 #python setup.py install
@@ -54,12 +54,12 @@ pip install ScreenPinKit -i https://pypi.org/simple/
 ScreenPinKit
 ```
 
-> **Warning**
-> This application uses the third-party library system_hotkey to register global hotkeys. However, since this package hasn't been maintained for over 3 years, it's recommended to install and run it on Python 3.8.
+> **Note**
+> This application uses the Python 3.10+ compatible `YaoXuanZhi/system_hotkey` fork to register global hotkeys.
 
 ## Development
 ```sh
-conda create -n pyqt5_env python=3.9
+conda create -n pyqt5_env python=3.12.10
 conda activate pyqt5_env
 git clone https://github.com/YaoXuanZhi/ScreenPinKit ScreenPinKit
 cd ScreenPinKit
@@ -146,8 +146,8 @@ Please proceed to [Youtube - ScreenPinKit](https://www.youtube.com/playlist?list
 <details>
 <summary>TodoList</summary>
 
-## Fix abnormal behavior of system_hotkey
-Testing shows it throws exceptions under Python 3.10, and even on Python 3.8 its exceptions can't be properly caught. Considering it hasn't been maintained for nearly 3 years, comprehensive compatibility handling is needed.
+## ✔ Fix abnormal behavior of system_hotkey
+The project now depends on the `YaoXuanZhi/system_hotkey` fork, which includes compatibility fixes for Python 3.10+.
 
 ## ☐ Seamless hotkey configuration
 ## ☐ Seamless language switching

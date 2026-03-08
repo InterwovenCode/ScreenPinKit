@@ -1,10 +1,11 @@
 --extra-index-url https://mirrors.aliyun.com/pypi/simple/
+setuptools
 PyQt5>=5.15.0
 scipy
-pillow<=9.5.0
+pillow>=10.1.0
 PyQt-Fluent-Widgets
 PyQtWebEngine
-system_hotkey
+system_hotkey @ git+https://github.com/YaoXuanZhi/system_hotkey.git
 opencv-python==4.10.0.84
 opencv-contrib-python==4.10.0.84
 onnxruntime==1.19.2

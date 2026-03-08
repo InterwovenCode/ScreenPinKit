@@ -1,5 +1,12 @@
 # coding=utf-8
 import typing, os, threading
+import pickle
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+import numpy as np
 from common import ScreenShotIcon
 from canvas_editor import *
 from canvas_item import *
@@ -450,6 +457,97 @@ class PainterInterface(QWidget):
             self.painterToolBarMgr.zoomComponent.TriggerEvent(event.angleDelta().y(), wheelEvent=event)
         return super().wheelEvent(event)
 
+    def __pixmapToOcrImage(self, pixmap: QPixmap):
+        image = pixmap.toImage().convertToFormat(QImage.Format_RGB888)
+        width = image.width()
+        height = image.height()
+        bytesPerLine = image.bytesPerLine()
+        bits = image.bits()
+        bits.setsize(image.byteCount())
+        imageArray = np.frombuffer(bits, dtype=np.uint8).reshape((height, bytesPerLine))
+        return imageArray[:, : width * 3].reshape((height, width, 3)).copy()
+
+    def __summarizeOcrResult(self, result):
+        resultType = type(result).__name__
+        resultLength = len(result) if hasattr(result, "__len__") else "unknown"
+        return f"type={resultType}, len={resultLength}"
+
+    def __logSubprocessOutput(self, prefix: str, output: str):
+        if not output:
+            return
+        maxLength = 12000
+        finalOutput = output if len(output) <= maxLength else output[-maxLength:]
+        logger.info(f"{prefix}:\n{finalOutput}", logger_name="ocr")
+
+    def __executeInsideOcrInSubprocess(self, image):
+        workDir = tempfile.mkdtemp(prefix="screenpinkit_ocr_")
+        inputPath = os.path.join(workDir, "input.npy")
+        outputPath = os.path.join(workDir, "output.pkl")
+        runnerPath = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "ocr_loader",
+            "ocr_subprocess_runner.py",
+        )
+        startTime = time.time()
+        try:
+            logger.info(
+                f"ocr stage [subprocess.prepare]: loader={self.ocrLoader.name}, image_shape={image.shape}, work_dir={workDir}",
+                logger_name="ocr",
+            )
+            np.save(inputPath, image)
+            cmd = [
+                sys.executable,
+                runnerPath,
+                "--loader",
+                self.ocrLoader.name,
+                "--input",
+                inputPath,
+                "--output",
+                outputPath,
+                "--dpi-scale",
+                str(CanvasUtil.getDevicePixelRatio()),
+            ]
+            logger.info(
+                f"ocr stage [subprocess.start]: command={' '.join(cmd)}",
+                logger_name="ocr",
+            )
+            try:
+                completed = subprocess.run(
+                    cmd,
+                    cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
+                    timeout=300,
+                )
+            except subprocess.TimeoutExpired as e:
+                self.__logSubprocessOutput("ocr subprocess stdout before timeout", e.stdout)
+                self.__logSubprocessOutput("ocr subprocess stderr before timeout", e.stderr)
+                raise RuntimeError("内置 OCR 子进程执行超时，已终止 OCR 识别") from e
+            elapsed = time.time() - startTime
+            logger.info(
+                f"ocr stage [subprocess.end]: returncode={completed.returncode}, elapsed={elapsed:.3f}s",
+                logger_name="ocr",
+            )
+            self.__logSubprocessOutput("ocr subprocess stdout", completed.stdout)
+            self.__logSubprocessOutput("ocr subprocess stderr", completed.stderr)
+            if completed.returncode != 0:
+                raise RuntimeError(
+                    f"内置 OCR 子进程异常退出，returncode={completed.returncode}。请查看 ocr subprocess stdout/stderr 日志。"
+                )
+            if not os.path.exists(outputPath):
+                raise RuntimeError("内置 OCR 子进程未生成结果文件")
+            with open(outputPath, "rb") as f:
+                result = pickle.load(f)
+            logger.info(
+                f"ocr stage [subprocess.result]: {self.__summarizeOcrResult(result)}",
+                logger_name="ocr",
+            )
+            return result
+        finally:
+            shutil.rmtree(workDir, ignore_errors=True)
+
     def startOcr(self):
         """使用独立线程进行OCR识别"""
         if hasattr(self, "ocrState"):
@@ -457,7 +555,23 @@ class PainterInterface(QWidget):
             self.selectItemAction.trigger()
             return
         self.ocrState = 0
-        self.ocrThread = OcrThread(self.onExecuteOcr, self.physicalPixmap)
+        try:
+            self.checkOcrLoaderValid()
+            self.ocrLoader: OcrLoaderInterface = ocrLoaderMgr.loaderDict[
+                cfg.get(cfg.useOcrLoaderType)
+            ]
+        except Exception as e:
+            message = "\n".join(str(arg) for arg in e.args)
+            logger.error(message, logger_name="ocr")
+            self.ocrEndFailSignal.emit(message)
+            delattr(self, "ocrState")
+            return
+
+        if self.ocrLoader.mode == EnumOcrMode.UseInside:
+            ocrImage = self.__pixmapToOcrImage(self.physicalPixmap)
+        else:
+            ocrImage = self.physicalPixmap.copy()
+        self.ocrThread = OcrThread(self.onExecuteOcr, ocrImage)
         self.ocrThread.start()
         # self.onExecuteOcr(self.physicalPixmap)
 
@@ -470,23 +584,28 @@ class PainterInterface(QWidget):
             keys = list(ocrLoaderMgr.loaderDict.keys())
             cfg.set(cfg.useOcrLoaderType, keys[0])
 
-    def onExecuteOcr(self, pixmap: QPixmap):
+    def onExecuteOcr(self, image):
         try:
-            self.checkOcrLoaderValid()
-            self.ocrLoader: OcrLoaderInterface = ocrLoaderMgr.loaderDict[
-                cfg.get(cfg.useOcrLoaderType)
-            ]
+            imageSize = image.shape if hasattr(image, "shape") else image.size()
             logger.info(
-                f"ocr info [{self.ocrLoader.mode}]: {pixmap.size()} {os.getppid()} {threading.current_thread().ident}", logger_name="ocr"
+                f"ocr info [{self.ocrLoader.mode}]: {imageSize} {os.getppid()} {threading.current_thread().ident}", logger_name="ocr"
             )
             self.ocrStartSignal.emit()
 
-            result = self.ocrLoader.ocr(pixmap)
-            logger.info(result, logger_name="ocr")
+            if self.ocrLoader.mode == EnumOcrMode.UseInside and hasattr(image, "shape"):
+                result = self.__executeInsideOcrInSubprocess(image)
+            else:
+                logger.info("ocr stage [loader.start]: executing loader in worker thread", logger_name="ocr")
+                result = self.ocrLoader.ocr(image)
+                logger.info("ocr stage [loader.end]: worker thread loader returned", logger_name="ocr")
+            logger.info(
+                f"ocr result summary: {self.__summarizeOcrResult(result)}",
+                logger_name="ocr",
+            )
             self.ocrEndSuccessSignal.emit(result)
 
         except Exception as e:
-            message = "\n".join(e.args)
+            message = "\n".join(str(arg) for arg in e.args)
             logger.error(message, logger_name="ocr")
             self.ocrEndFailSignal.emit(message)
 
@@ -587,6 +706,8 @@ class PainterInterface(QWidget):
         if hasattr(self, "ocrThread"):
             self.ocrThread.quit()
             self.ocrThread = None
+        if hasattr(self, "ocrState"):
+            delattr(self, "ocrState")
 
     def onOcrEndFail(self, message):
         pluginMgr.handleEvent(
@@ -596,3 +717,5 @@ class PainterInterface(QWidget):
         if hasattr(self, "ocrThread"):
             self.ocrThread.quit()
             self.ocrThread = None
+        if hasattr(self, "ocrState"):
+            delattr(self, "ocrState")

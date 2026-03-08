@@ -228,11 +228,12 @@ class CanvasScene(QGraphicsScene):
         view = self.views()[0]
         shotGrab = view.grab()
         devicePixelRatio = self.bgBrush.texture().devicePixelRatio()
-        finalSize = QSizeF(qRound(self.sceneRect().width() * devicePixelRatio), qRound(self.sceneRect().height() * devicePixelRatio))
-
-        shotGrab = shotGrab.scaled(
-            finalSize.width(), finalSize.height(), Qt.KeepAspectRatio
+        finalSize = QSize(
+            qRound(self.sceneRect().width() * devicePixelRatio),
+            qRound(self.sceneRect().height() * devicePixelRatio),
         )
+
+        shotGrab = shotGrab.scaled(finalSize, Qt.KeepAspectRatio)
         return shotGrab
 
     def switchLockState(self):

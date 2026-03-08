@@ -6,3 +6,4 @@ ocr_temp
 /src/build
 dist
 /src/ScreenPinKit.spec
+/graphify-out

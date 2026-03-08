@@ -1,4 +1,5 @@
 import os, sys
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "."))
 from ocr_loader import *
@@ -14,6 +15,9 @@ except ImportError:
 
 
 def qpixmapToMatlike(qpixmap: QPixmap):
+    if isinstance(qpixmap, np.ndarray):
+        return qpixmap
+
     # 将 QPixmap 转换为 QImage
     qimage = qpixmap.toImage()
 
@@ -64,12 +68,25 @@ class InternalOcrLoader_ReturnJson(OcrLoaderInterface):
         if _currentOcrMode == EnumOcrMode.NoSupport:
             return [], [], []
 
+        start_time = time.time()
+        print("[ocr-loader:json] ocr start", flush=True)
         matlike = qpixmapToMatlike(pixmap)
+        print(f"[ocr-loader:json] matlike shape={matlike.shape}", flush=True)
 
         ocr_sys = OcrDetector(matlike, use_dnn=False, version=3)  # 支持v2和v3版本的
+        print("[ocr-loader:json] get_boxes start", flush=True)
         dt_boxes = ocr_sys.get_boxes()
+        box_count = len(dt_boxes[0]) if len(dt_boxes) > 0 else 0
+        print(f"[ocr-loader:json] get_boxes end count={box_count}", flush=True)
+        print("[ocr-loader:json] recognition_img start", flush=True)
         results, results_info = ocr_sys.recognition_img(dt_boxes)
+        print(f"[ocr-loader:json] recognition_img end results={len(results)}", flush=True)
+        print("[ocr-loader:json] get_match_text_boxes start", flush=True)
         match_text_boxes = ocr_sys.get_match_text_boxes(dt_boxes[0], results)
+        print(
+            f"[ocr-loader:json] get_match_text_boxes end count={len(match_text_boxes)}",
+            flush=True,
+        )
 
         data = []
         for info in match_text_boxes:
@@ -87,4 +104,8 @@ class InternalOcrLoader_ReturnJson(OcrLoaderInterface):
             score = 0.97
             data.append({"text": text, "box": box, "score": score})
 
+        print(
+            f"[ocr-loader:json] result built count={len(data)} elapsed={time.time() - start_time:.3f}s",
+            flush=True,
+        )
         return {"code": 100, "data": data}

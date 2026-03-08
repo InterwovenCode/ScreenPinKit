@@ -27,7 +27,7 @@ class CanvasLineStripItem(CanvasCommonPathItem):
         }
 
         self.usePen = QPen(styleMap["penColor"])
-        self.usePen.setWidth(styleMap["penWidth"] * self.devicePixelRatio)
+        self.usePen.setWidthF(styleMap["penWidth"] * self.devicePixelRatio)
         self.usePen.setCosmetic(True)
         self.usePen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         self.usePen.setCapStyle(Qt.PenCapStyle.RoundCap)
@@ -46,7 +46,7 @@ class CanvasLineStripItem(CanvasCommonPathItem):
         penColor = styleMap["penColor"]
         penWidth = styleMap["penWidth"]
         self.usePen.setColor(penColor)
-        self.usePen.setWidth(penWidth * self.devicePixelRatio)
+        self.usePen.setWidthF(penWidth * self.devicePixelRatio)
         self.update()
 
     def getOffsetLength(self) -> int:
@@ -55,7 +55,7 @@ class CanvasLineStripItem(CanvasCommonPathItem):
         由于抗锯齿等渲染技术的影响，实际渲染的宽度可能会比设置的宽度略大，
         需要拿到QPaint.device().devicePixelRatioF()来进行转换处理
         """
-        finalLength = int(self.usePen.width() / 2) / self.devicePixelRatio
+        finalLength = int(self.usePen.widthF() / 2) / self.devicePixelRatio
         return finalLength
 
     def __initEditMode(self):

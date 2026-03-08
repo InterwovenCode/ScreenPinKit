@@ -2,7 +2,6 @@
 """
 提供全局热键的注册功能
 
-后续看下需不需要改用pynput来解决system_hotkey的兼容性问题
 """
 
 import time

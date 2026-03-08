@@ -24,7 +24,7 @@ class CanvasEraserItem(CanvasCommonPathItem):
             "width": 5,
         }
         self.usePen = pen
-        self.usePen.setWidth(styleMap["width"] * self.devicePixelRatio)
+        self.usePen.setWidthF(styleMap["width"] * self.devicePixelRatio)
         self.usePen.setCosmetic(True)
         self.usePen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         self.usePen.setCapStyle(Qt.PenCapStyle.RoundCap)
@@ -38,7 +38,7 @@ class CanvasEraserItem(CanvasCommonPathItem):
     def styleAttributeChanged(self):
         styleMap = self.styleAttribute.getValue().value()
         width = styleMap["width"]
-        self.usePen.setWidth(width * self.devicePixelRatio)
+        self.usePen.setWidthF(width * self.devicePixelRatio)
         self.update()
 
     def resetStyle(self, styleMap):

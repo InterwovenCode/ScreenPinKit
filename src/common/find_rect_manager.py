@@ -42,10 +42,10 @@ class FindRectManager:
             ):
                 result.append(
                     QRect(
-                        x / self.devicePixelRatio,
-                        y / self.devicePixelRatio,
-                        w / self.devicePixelRatio,
-                        h / self.devicePixelRatio,
+                        qRound(x / self.devicePixelRatio),
+                        qRound(y / self.devicePixelRatio),
+                        qRound(w / self.devicePixelRatio),
+                        qRound(h / self.devicePixelRatio),
                     )
                 )
 

@@ -24,7 +24,7 @@ class CanvasBubbleTextItem(CanvasTextItem):
     def __initStyle(self):
         self.devicePixelRatio = CanvasUtil.getDevicePixelRatio()
         defaultFont = QFont()
-        defaultFont.setPointSize(16 * self.devicePixelRatio)
+        defaultFont.setPointSizeF(16 * self.devicePixelRatio)
         bubbleDirection = BubbleDirectionEnum.BottomLeft
         styleMap = {
             "font": defaultFont,

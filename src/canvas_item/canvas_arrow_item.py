@@ -37,7 +37,7 @@ class CanvasArrowItem(CanvasCommonPathItem):
         }
 
         self.usePen = QPen()
-        self.usePen.setWidth(styleMap["penWidth"])
+        self.usePen.setWidthF(styleMap["penWidth"])
         self.usePen.setColor(styleMap["penColor"])
         self.usePen.setStyle(styleMap["penStyle"])
 
@@ -60,7 +60,7 @@ class CanvasArrowItem(CanvasCommonPathItem):
         penWidth = styleMap["penWidth"]
         penStyle = styleMap["penStyle"]
         self.usePen.setColor(penColor)
-        self.usePen.setWidth(penWidth)
+        self.usePen.setWidthF(penWidth)
         self.usePen.setStyle(penStyle)
 
         self.useBrushColor = styleMap["brushColor"]

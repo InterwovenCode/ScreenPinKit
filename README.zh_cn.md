@@ -18,7 +18,7 @@
   </a>
 
   <a href="">
-    <img src="https://img.shields.io/badge/Python-3.8,3.9-aff.svg">
+    <img src="https://img.shields.io/badge/Python-3.12.10-aff.svg">
   </a>
 
   <a href="./LICENSE">
@@ -44,7 +44,7 @@
 
 ## 安装
 ```shell
-# 暂时只推荐在Python3.8、Python3.9上安装
+# 推荐 Python 版本：3.12.10
 ## 源码安装
 #cd src/
 #python setup.py install
@@ -54,12 +54,12 @@ pip install ScreenPinKit -i https://pypi.org/simple/
 ScreenPinKit
 ```
 
-> **Warning**
-> 该应用使用了第三方库system_hotkey来注册全局快捷键，但是由于该包已经有3年以上不维护了，推荐在python3.8上安装并运行
+> **Note**
+> 该应用使用兼容 Python 3.10+ 的 `YaoXuanZhi/system_hotkey` fork 来注册全局快捷键。
 
 ## 开发
 ```sh
-conda create -n pyqt5_env python=3.9
+conda create -n pyqt5_env python=3.12.10
 conda activate pyqt5_env
 git clone https://github.com/YaoXuanZhi/ScreenPinKit ScreenPinKit
 cd ScreenPinKit
@@ -146,8 +146,8 @@ ruff format
 <details>
 <summary>TodoList</summary>
 
-## 修复system_hotkey的异常表现
-经测试，在python3.10下会抛异常，并且在python3.8上其异常也不能被正常捕获，考虑到它已经有将近3年不维护了，需要做对它做全方位的兼容性处理
+## ✔ 修复system_hotkey的异常表现
+项目已切换到 `YaoXuanZhi/system_hotkey` fork，该版本包含 Python 3.10+ 兼容性修复。
 
 ## ☐ 无感设置快捷键
 ## ☐ 无感切换语言

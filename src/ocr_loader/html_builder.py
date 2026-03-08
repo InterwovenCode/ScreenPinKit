@@ -1,5 +1,5 @@
 import html
-from PIL import ImageFont
+import unicodedata
 
 IsSupportGapTree = True
 
@@ -14,7 +14,7 @@ def calculate_best_font_size(
     text, font_path, max_width, max_height, initial_font_size=5
 ):
     """
-    通过ImageFont计算最适合固定文本框的字体大小
+    计算最适合固定文本框的字体大小
     :param text: 要显示的文本
     :param font_path: 字体文件路径
     :param max_width: 文本框的最大宽度
@@ -24,10 +24,15 @@ def calculate_best_font_size(
     """
 
     font_size = initial_font_size
+    text_units = sum(
+        2 if unicodedata.east_asian_width(char) in ("F", "W") else 1
+        for char in text
+    )
+    text_units = max(text_units, 1)
 
     while True:
-        font = ImageFont.truetype(font_path, font_size)
-        text_width, text_height = font.getsize(text)
+        text_width = text_units * font_size * 0.55
+        text_height = font_size * 1.2
 
         if text_width <= max_width and text_height <= max_height:
             font_size += 1

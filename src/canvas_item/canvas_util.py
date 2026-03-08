@@ -333,8 +333,8 @@ class CanvasUtil:
         for screen in screens:
             pix = screen.grabWindow(0)
             rect = screen.availableGeometry()
-            rect.setWidth(rect.width() * devicePixelRatio)
-            rect.setHeight(rect.height() * devicePixelRatio)
+            rect.setWidth(qRound(rect.width() * devicePixelRatio))
+            rect.setHeight(qRound(rect.height() * devicePixelRatio))
             pix = pix.copy(rect)
             w += pix.width()
             h = max(h, pix.height())
@@ -353,7 +353,8 @@ class CanvasUtil:
         geometryTopLeft = screens[0].availableGeometry().topLeft()
 
         finalGeometry = QRect(
-            geometryTopLeft, QSize(w / devicePixelRatio, h / devicePixelRatio)
+            geometryTopLeft,
+            QSize(qRound(w / devicePixelRatio), qRound(h / devicePixelRatio)),
         )
         return finalPixmap, finalGeometry
 

@@ -21,7 +21,7 @@ class CanvasPenItem(CanvasCommonPathItem):
         }
 
         self.usePen = QPen(styleMap["penColor"])
-        self.usePen.setWidth(styleMap["penWidth"] * self.devicePixelRatio)
+        self.usePen.setWidthF(styleMap["penWidth"] * self.devicePixelRatio)
         self.usePen.setCosmetic(True)
         self.usePen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         self.usePen.setCapStyle(Qt.PenCapStyle.RoundCap)
@@ -37,7 +37,7 @@ class CanvasPenItem(CanvasCommonPathItem):
         penColor = styleMap["penColor"]
         penWidth = styleMap["penWidth"]
         self.usePen.setColor(penColor)
-        self.usePen.setWidth(penWidth * self.devicePixelRatio)
+        self.usePen.setWidthF(penWidth * self.devicePixelRatio)
         self.update()
 
     def resetStyle(self, styleMap):

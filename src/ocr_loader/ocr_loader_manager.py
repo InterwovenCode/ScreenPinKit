@@ -1,4 +1,6 @@
-import os, sys, glob, importlib
+import os, sys, glob, importlib, traceback
+import importlib.abc
+import importlib.util
 from .ocr_loader_interface import OcrLoaderInterface
 from common import *
 from canvas_item import *
@@ -77,17 +79,25 @@ class OcrLoaderManager:
     #     self.__filterInterface(module)
 
     def __initLoadersByFolder(self, folderPath):
+        if not folderPath or not os.path.isdir(folderPath):
+            return
         sys.path.append(folderPath)
         pyFiles = glob.glob(f"{folderPath}/*.py", recursive=False)
         for filePath in pyFiles:
             filename = os.path.basename(filePath)
             moduleName = filename[:-3]
+            if moduleName in ["setup", "__init__", "ocr_loader_manager", "ocr_loader_interface"]:
+                logger.info(f"跳过非OCR加载器模块: {filePath}", logger_name="ocr")
+                continue
             modulePath = f"{moduleName}"
             try:
                 module = importlib.import_module(modulePath)
                 self.__filterInterface(module)
             except Exception:
-                pass
+                logger.error(
+                    f"OCR加载器模块导入失败: {filePath}\n{traceback.format_exc()}",
+                    logger_name="ocr",
+                )
 
     def __initLoadersByModuleName(self, moduleName):
         module = importlib.import_module(moduleName)

@@ -14,7 +14,7 @@ class BubbleTextEditToolbar(CanvasItemToolBar):
         defaultPointSize = cfg.get(cfg.textEditToolbarFontSize) * self.devicePixelRatio
         defaultFontFamily = cfg.get(cfg.textEditToolbarFontFamily)
         defaultFont.setFamily(defaultFontFamily)
-        defaultFont.setPointSize(defaultPointSize)
+        defaultFont.setPointSizeF(defaultPointSize)
         self.styleMap = {
             "font": defaultFont,
             "textColor": cfg.get(cfg.bubbleTextEditToolbarTextColor),

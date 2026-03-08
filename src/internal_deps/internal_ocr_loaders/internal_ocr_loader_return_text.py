@@ -1,9 +1,14 @@
 import os, sys
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "."))
 from ocr_loader import *
 from PIL import Image
 import numpy as np
+
+
+def get_ocr_dpi_scale():
+    return float(os.environ.get("SCREENPINKIT_OCR_DPI_SCALE", "1"))
 
 try:
     from PaddleOCRModel.PaddleOCRModel import det_rec_functions as OcrDetector
@@ -14,6 +19,9 @@ except ImportError as e:
 
 
 def qpixmapToMatlike(qpixmap: QPixmap):
+    if isinstance(qpixmap, np.ndarray):
+        return qpixmap
+
     # 将 QPixmap 转换为 QImage
     qimage = qpixmap.toImage()
 
@@ -54,13 +62,26 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
         return EnumOcrReturnType.Text
 
     def ocr(self, pixmap: QPixmap):
+        start_time = time.time()
+        print("[ocr-loader:text] ocr start", flush=True)
         jsonObj = self.__ocr(pixmap)
         boxInfos = jsonObj["data"]
-        width = pixmap.size().width()
-        height = pixmap.size().height()
-        dpiScale = CanvasUtil.getDevicePixelRatio()
+        print(
+            f"[ocr-loader:text] raw ocr returned boxes={len(boxInfos)} elapsed={time.time() - start_time:.3f}s",
+            flush=True,
+        )
+        if isinstance(pixmap, np.ndarray):
+            height, width = pixmap.shape[:2]
+        else:
+            width = pixmap.size().width()
+            height = pixmap.size().height()
+        dpiScale = get_ocr_dpi_scale()
         font_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "PaddleOCRModel/arial.ttf"
+        )
+        print(
+            f"[ocr-loader:text] building html width={width} height={height} boxes={len(boxInfos)}",
+            flush=True,
         )
         htmlContent = build_svg_html(
             font_path=font_path,
@@ -68,6 +89,10 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
             height=height,
             box_infos=boxInfos,
             dpi_scale=dpiScale,
+        )
+        print(
+            f"[ocr-loader:text] html built len={len(htmlContent)} elapsed={time.time() - start_time:.3f}s",
+            flush=True,
         )
         return htmlContent
 
@@ -83,11 +108,22 @@ class InternalOcrLoader_ReturnText(OcrLoaderInterface):
             raise Exception(_importErrorMsg)
 
         matlike = qpixmapToMatlike(pixmap)
+        print(f"[ocr-loader:text] matlike shape={matlike.shape}", flush=True)
 
         ocr_sys = OcrDetector(matlike, use_dnn=False, version=3)  # 支持v2和v3版本的
+        print("[ocr-loader:text] get_boxes start", flush=True)
         dt_boxes = ocr_sys.get_boxes()
+        box_count = len(dt_boxes[0]) if len(dt_boxes) > 0 else 0
+        print(f"[ocr-loader:text] get_boxes end count={box_count}", flush=True)
+        print("[ocr-loader:text] recognition_img start", flush=True)
         results, results_info = ocr_sys.recognition_img(dt_boxes)
+        print(f"[ocr-loader:text] recognition_img end results={len(results)}", flush=True)
+        print("[ocr-loader:text] get_match_text_boxes start", flush=True)
         match_text_boxes = ocr_sys.get_match_text_boxes(dt_boxes[0], results)
+        print(
+            f"[ocr-loader:text] get_match_text_boxes end count={len(match_text_boxes)}",
+            flush=True,
+        )
 
         data = []
         for info in match_text_boxes:

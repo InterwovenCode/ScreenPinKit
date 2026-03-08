@@ -67,7 +67,7 @@ class PinWindowManager:
         if pixmap != None:
             realSize = self.autoFitScreenPixelRatioForPixmap(pixmap)
             screenPoint = QCursor().pos() - QPoint(
-                realSize.width() / 2, realSize.height() / 2
+                qRound(realSize.width() / 2), qRound(realSize.height() / 2)
             )
             self.addPinWindow(screenPoint, realSize, pixmap)
 
