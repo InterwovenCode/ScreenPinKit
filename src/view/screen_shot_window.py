@@ -161,17 +161,19 @@ class ScreenShotWindow(QWidget):
         # 在放大后的QPixmap上画纵横十字线
         if not hasattr(self, "_painter"):
             self._painter = QPainter()
-        self._painter.begin(glassPixmap)
-        halfWidth = glassPixmap.width() / 2
-        halfHeight = glassPixmap.height() / 2
-        self._painter.setPen(self.pen_SolidLine_lightBlue)
-        self._painter.drawLine(
-            QPointF(0, halfHeight), QPointF(glassPixmap.width(), halfHeight)
-        )
-        self._painter.drawLine(
-            QPointF(halfWidth, 0), QPointF(halfWidth, glassPixmap.height())
-        )
-        self._painter.end()
+        try:
+            self._painter.begin(glassPixmap)
+            halfWidth = glassPixmap.width() / 2
+            halfHeight = glassPixmap.height() / 2
+            self._painter.setPen(self.pen_SolidLine_lightBlue)
+            self._painter.drawLine(
+                QPointF(0, halfHeight), QPointF(glassPixmap.width(), halfHeight)
+            )
+            self._painter.drawLine(
+                QPointF(halfWidth, 0), QPointF(halfWidth, glassPixmap.height())
+            )
+        finally:
+            self._painter.end()
         return glassPixmap, screenColor
 
     def paintMagnifyingGlass(self, glassSize=150, offset=30, labelHeight=60):
@@ -504,22 +506,34 @@ class ScreenShotWindow(QWidget):
 
     def paintEvent(self, event):
         canvasPixmap = self.screenPixmap.copy()
-        self.painter.begin(canvasPixmap)
+        try:
+            self.painter.begin(canvasPixmap)
 
-        if self.hasScreenShot or cfg.get(cfg.isAutoFindWindow):
-            # 绘制截图区域的周边区域遮罩层
-            self.paintMaskLayer(fullScreen=False)
-            # 绘制中央截图区域
-            self.paintCenterArea()
-        else:
-            self.paintMaskLayer()
-        self.paintMagnifyingGlass()
+            if self.hasScreenShot or cfg.get(cfg.isAutoFindWindow):
+                # 绘制截图区域的周边区域遮罩层
+                self.paintMaskLayer(fullScreen=False)
+                # 绘制中央截图区域
+                self.paintCenterArea()
+            else:
+                self.paintMaskLayer()
+            self.paintMagnifyingGlass()
+        except Exception:
+            # 阻止任何绘制异常冒泡到 Qt C++ 层
+            pass
+        finally:
+            # 无论绘制逻辑是否抛异常，都必须先结束绘制，
+            # 否则 canvasPixmap 在 QPainter 仍引用它时被 GC 销毁会直接 abort 进程
+            if self.painter.isActive():
+                self.painter.end()
 
-        self.painter.end()
-
-        self.painter.begin(self)
-        self.painter.drawPixmap(0, 0, canvasPixmap)
-        self.painter.end()
+        try:
+            self.painter.begin(self)
+            self.painter.drawPixmap(0, 0, canvasPixmap)
+        except Exception:
+            pass
+        finally:
+            if self.painter.isActive():
+                self.painter.end()
 
     def wheelEvent(self, a0):
         if a0.angleDelta().y() > 0:
