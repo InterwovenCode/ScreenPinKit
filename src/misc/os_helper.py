@@ -2,8 +2,8 @@ import os, sys, inspect, subprocess, hashlib
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PIL import Image
 import numpy as np
+from qt_image_util import qimage_to_ndarray
 
 
 class OsHelper:
@@ -36,7 +36,8 @@ class OsHelper:
     @staticmethod
     def calculateHashForQPixmap(pixmap: QPixmap, cutLength=0, hashAlgorithm="sha256"):
         """计算QPixmap的哈希值，根据需要可以截取对应哈希结果长度"""
-        byteArray = Image.fromqpixmap(pixmap).tobytes()
+        image = pixmap.toImage().convertToFormat(QImage.Format_RGBA8888)
+        byteArray = bytes(image.bits().asstring(image.sizeInBytes()))
 
         # 创建哈希对象
         hashObj = hashlib.new(hashAlgorithm)
@@ -54,22 +55,7 @@ class OsHelper:
 
     @staticmethod
     def qpixmapToMatlike(qpixmap: QPixmap):
-        # 将 QPixmap 转换为 QImage
-        qimage = qpixmap.toImage()
-
-        # # 获取 QImage 的宽度和高度
-        # import cv2
-        # width = qimage.width()
-        # height = qimage.height()
-
-        # # 将 QImage 转换为 numpy 数组
-        # byteArray = qimage.bits().asstring(width * height * 4)  # 4 表示每个像素有 4 个字节（RGBA）
-        # imageArray = np.frombuffer(byteArray, dtype=np.uint8).reshape((height, width, 4))
-        # imageArray = cv2.cvtColor(imageArray, cv2.IMREAD_COLOR)
-
-        image = Image.fromqimage(qimage)
-        imageArray = np.array(image)
-        return imageArray
+        return qimage_to_ndarray(qpixmap.toImage())
 
     @staticmethod
     def loadFontFamilyFromQrc(font_path) -> str:

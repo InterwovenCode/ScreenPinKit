@@ -1,6 +1,5 @@
 import os, sys, argparse, html
 from PaddleOCRModel import det_rec_functions as OcrDetector
-from PIL import Image, ImageFont
 import cv2
 import numpy as np
 
@@ -10,11 +9,10 @@ from html_builder import build_svg_html as build_svg_html
 
 def image2svghtml(input, output, dpi_scale=1):
     """将图片进行OCR识别后，将结果转换成html"""
-    # 打开图片
-    image = Image.open(input)
-
-    # 获取图片的宽度和高度
-    width, height = image.size
+    matlike = cv2.imread(input, cv2.IMREAD_COLOR)
+    if matlike is None:
+        raise ValueError(f"Unable to read image: {input}")
+    height, width = matlike.shape[:2]
 
     # 使用 PaddleOCR 进行 OCR 识别
     # result = ocr.ocr(input, cls=True)

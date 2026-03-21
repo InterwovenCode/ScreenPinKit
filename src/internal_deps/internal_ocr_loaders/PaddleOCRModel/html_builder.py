@@ -1,5 +1,5 @@
 import html, os
-from PIL import ImageFont
+from PyQt5.QtGui import QFont, QFontDatabase, QFontMetrics
 import numpy as np
 
 
@@ -18,9 +18,13 @@ def calculate_best_font_size(
 
     font_size = initial_font_size
 
+    font_id = QFontDatabase.addApplicationFont(font_path)
+    families = QFontDatabase.applicationFontFamilies(font_id)
+    family = families[0] if families else "Arial"
     while True:
-        font = ImageFont.truetype(font_path, font_size)
-        text_width, text_height = font.getsize(text)
+        metrics = QFontMetrics(QFont(family, font_size))
+        text_width = metrics.horizontalAdvance(text)
+        text_height = metrics.height()
 
         if text_width <= max_width and text_height <= max_height:
             font_size += 1

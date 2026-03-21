@@ -43,7 +43,6 @@ class OcrLoaderManager:
         import onnxruntime
         import pyclipper
         from shapely.geometry import Polygon
-        from PIL import ImageDraw
 
         internalPath = os.path.join(OsHelper.getInternalPath(), "internal_deps/internal_ocr_loaders")
         self.__initLoadersByFolder(internalPath)

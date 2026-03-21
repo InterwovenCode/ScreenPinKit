@@ -33,10 +33,6 @@ class NormalizeImage(object):
 
     def __call__(self, data):
         img = data["image"]
-        from PIL import Image
-
-        if isinstance(img, Image.Image):
-            img = np.array(img)
 
         assert isinstance(img, np.ndarray), "invalid input 'img' in NormalizeImage"
         data["image"] = (img.astype("float32") * self.scale - self.mean) / self.std
@@ -51,10 +47,6 @@ class ToCHWImage(object):
 
     def __call__(self, data):
         img = data["image"]
-        from PIL import Image
-
-        if isinstance(img, Image.Image):
-            img = np.array(img)
         data["image"] = img.transpose((2, 0, 1))
         return data
 

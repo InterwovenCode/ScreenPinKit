@@ -6,26 +6,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import numpy as np
-from PIL import Image
+from qt_image_util import qpixmap_to_bgr_ndarray
 from PaddleOCRModel import det_rec_functions as OcrDetector
 
 
 def qpixmap_to_matlike(qpixmap: QPixmap):
-    # 将 QPixmap 转换为 QImage
-    qimage = qpixmap.toImage()
-
-    # # 获取 QImage 的宽度和高度
-    # width = qimage.width()
-    # height = qimage.height()
-
-    # # 将 QImage 转换为 numpy 数组
-    # byteArray = qimage.bits().asstring(width * height * 4)  # 4 表示每个像素有 4 个字节（RGBA）
-    # imageArray = np.frombuffer(byteArray, dtype=np.uint8).reshape((height, width, 4))
-    # imageArray = cv2.cvtColor(imageArray, cv2.IMREAD_COLOR)
-
-    image = Image.fromqimage(qimage)
-    imageArray = np.array(image)
-    return imageArray
+    return qpixmap_to_bgr_ndarray(qpixmap)
 
 
 class OcrimgThread(QThread):

@@ -4,8 +4,8 @@ import typing
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from PIL import Image
 import numpy as np
+from qt_image_util import qpixmap_to_ndarray
 from canvas_item.canvas_util import CanvasUtil
 
 
@@ -15,7 +15,7 @@ class FindRectManager:
         finalPixmap, finalGeometry = CanvasUtil.grabScreens()
         self.pixmap = finalPixmap
         self.devicePixelRatio = self.pixmap.devicePixelRatioF()
-        self.image = Image.fromqpixmap(self.pixmap)
+        self.image = qpixmap_to_ndarray(self.pixmap)
         self.minSize = QSize(30, 20)
         self.screenRect = finalGeometry
         self.area_threshold = 200
@@ -25,7 +25,7 @@ class FindRectManager:
         import cv2
 
         ndArray = np.array(self.image)
-        gray = cv2.cvtColor(ndArray, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(ndArray, cv2.COLOR_RGBA2GRAY)
         th = cv2.adaptiveThreshold(
             gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 5, 2
         )  # 自动阈值

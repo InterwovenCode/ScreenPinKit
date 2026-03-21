@@ -3,7 +3,7 @@ import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "."))
 from ocr_loader import *
-from PIL import Image
+from qt_image_util import qpixmap_to_bgr_ndarray
 import numpy as np
 
 
@@ -22,22 +22,7 @@ def qpixmapToMatlike(qpixmap: QPixmap):
     if isinstance(qpixmap, np.ndarray):
         return qpixmap
 
-    # 将 QPixmap 转换为 QImage
-    qimage = qpixmap.toImage()
-
-    # # 获取 QImage 的宽度和高度
-    # import cv2
-    # width = qimage.width()
-    # height = qimage.height()
-
-    # # 将 QImage 转换为 numpy 数组
-    # byteArray = qimage.bits().asstring(width * height * 4)  # 4 表示每个像素有 4 个字节（RGBA）
-    # imageArray = np.frombuffer(byteArray, dtype=np.uint8).reshape((height, width, 4))
-    # imageArray = cv2.cvtColor(imageArray, cv2.IMREAD_COLOR)
-
-    image = Image.fromqimage(qimage)
-    imageArray = np.array(image)
-    return imageArray
+    return qpixmap_to_bgr_ndarray(qpixmap)
 
 
 class InternalOcrLoader_ReturnText(OcrLoaderInterface):

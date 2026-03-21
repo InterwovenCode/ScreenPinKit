@@ -2,7 +2,6 @@
 setuptools
 PyQt5>=5.15.0
 scipy
-pillow>=10.1.0
 PyQt-Fluent-Widgets
 PyQtWebEngine
 system_hotkey @ git+https://github.com/YaoXuanZhi/system_hotkey.git

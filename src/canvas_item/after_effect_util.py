@@ -3,7 +3,9 @@ from enum import Enum
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PIL import ImageFilter, Image
+import cv2
+import numpy as np
+from qt_image_util import ndarray_to_qpixmap, qpixmap_to_ndarray
 
 
 class AfterEffectType(Enum):
@@ -29,9 +31,11 @@ class AfterEffectUtilByPIL:
     @staticmethod
     def gaussianBlur(pixmap: QPixmap, blurRadius=5):
         """高斯模糊"""
-        return AfterEffectUtilByPIL.effectUtilByPIL(
-            pixmap, ImageFilter.GaussianBlur(radius=blurRadius)
-        )
+        image = qpixmap_to_ndarray(pixmap)
+        kernel_size = max(3, int(blurRadius) * 2 + 1)
+        result = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
+        result[:, :, 3] = image[:, :, 3]
+        return ndarray_to_qpixmap(result, pixmap.devicePixelRatioF())
 
     @staticmethod
     def mosaic(pixmap: QPixmap, blockSize=2, pixelateFactor=1):
@@ -40,52 +44,36 @@ class AfterEffectUtilByPIL:
         由于那种逐个像素遍历的处理太低效了，最终采取了网友分享的思路：
         https://blog.csdn.net/qq_38563206/article/details/136030277
         """
-        width = pixmap.width()
-        height = pixmap.height()
-        tempImage = pixmap.toImage()
-        if tempImage.format() != QImage.Format.Format_RGB32:
-            tempImage = tempImage.convertToFormat(QImage.Format.Format_RGB32)
+        if blockSize <= 0 or pixelateFactor <= 0:
+            raise ValueError("blockSize and pixelateFactor must be positive")
 
-        image = Image.fromqimage(tempImage)
-
-        # 计算图像的宽度和高度
-        width, height = image.size
-
-        # 计算马赛克块的数量
-        num_blocks_width = max(width // blockSize, 1)
-        num_blocks_height = max(height // blockSize, 1)
-
-        # 缩小图像，创建马赛克效果
-        blockSourceImage = image.resize((num_blocks_width, num_blocks_height))
-        # 放大图像，增加马赛克强度
-        finalImage = blockSourceImage.resize(
-            (width // pixelateFactor, height // pixelateFactor), Image.NEAREST
+        image = qpixmap_to_ndarray(pixmap)
+        height, width = image.shape[:2]
+        reduced_size = (max(width // blockSize, 1), max(height // blockSize, 1))
+        reduced = cv2.resize(image, reduced_size, interpolation=cv2.INTER_LINEAR)
+        pixelated_size = (
+            max(width // pixelateFactor, 1),
+            max(height // pixelateFactor, 1),
         )
-        finalImage = finalImage.resize((width, height), Image.NEAREST)
-        return QPixmap.fromImage(
-            QImage(
-                finalImage.tobytes(),
-                width,
-                height,
-                3 * width,
-                QImage.Format.Format_RGB888,
-            )
-        )
+        pixelated = cv2.resize(reduced, pixelated_size, interpolation=cv2.INTER_NEAREST)
+        result = cv2.resize(pixelated, (width, height), interpolation=cv2.INTER_NEAREST)
+        result[:, :, 3] = image[:, :, 3]
+        return ndarray_to_qpixmap(result, pixmap.devicePixelRatioF())
 
     @staticmethod
     def detail(pixmap: QPixmap):
         """图像突出"""
-        return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.DETAIL)
+        return AfterEffectUtilByPIL._apply_cv_effect(pixmap, "detail")
 
     @staticmethod
     def findEdges(pixmap: QPixmap):
         """边缘提取"""
-        return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.FIND_EDGES)
+        return AfterEffectUtilByPIL._apply_cv_effect(pixmap, "edges")
 
     @staticmethod
     def contour(pixmap: QPixmap):
         """轮廓提取"""
-        return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.CONTOUR)
+        return AfterEffectUtilByPIL._apply_cv_effect(pixmap, "contour")
 
     @staticmethod
     def invert(pixmap: QPixmap):
@@ -118,7 +106,7 @@ class AfterEffectUtilByPIL:
     #     if tempImage.format() != QImage.Format.Format_RGB32:
     #         tempImage = tempImage.convertToFormat(QImage.Format.Format_RGB32)
 
-    #     image = Image.fromqimage(tempImage)
+    # Pillow-based mosaic implementation was removed.
 
     #     # finalImage = image.copy()
     #     finalImage = Image.new("RGB", (width, height), (0, 0, 0))
@@ -138,31 +126,20 @@ class AfterEffectUtilByPIL:
     #     return QPixmap.fromImage(QImage(finalImage.tobytes(), width, height, 3*width, QImage.Format.Format_RGB888))
 
     @staticmethod
-    def effectUtilByPIL(pixmap: QPixmap, effectFilter: ImageFilter.MultibandFilter):
-        """
-        PIL图像处理
-        这篇博客介绍得比较完整：https://www.cnblogs.com/traditional/p/11111770.html
-        """
-        width = pixmap.width()
-        height = pixmap.height()
-        tempImage = pixmap.toImage()
-        if tempImage.format() != QImage.Format.Format_RGB32:
-            tempImage = tempImage.convertToFormat(QImage.Format.Format_RGB32)
-
-        image = Image.fromqimage(tempImage)
-
-        # 图像处理
-        finalImage = image.filter(effectFilter)
-
-        return QPixmap.fromImage(
-            QImage(
-                finalImage.tobytes(),
-                width,
-                height,
-                3 * width,
-                QImage.Format.Format_RGB888,
-            )
-        )
+    def _apply_cv_effect(pixmap: QPixmap, effect: str):
+        image = qpixmap_to_ndarray(pixmap)
+        rgb = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
+        if effect == "detail":
+            result = cv2.detailEnhance(rgb)
+        elif effect == "edges":
+            edges = cv2.Canny(rgb, 100, 200)
+            result = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
+        elif effect == "contour":
+            result = cv2.filter2D(rgb, -1, np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]]))
+        else:
+            raise ValueError(f"Unsupported effect: {effect}")
+        rgba = np.dstack((result, image[:, :, 3]))
+        return ndarray_to_qpixmap(rgba, pixmap.devicePixelRatioF())
 
     @staticmethod
     def effectDemos(pixmap: QPixmap):
@@ -176,7 +153,7 @@ class AfterEffectUtilByPIL:
         # return ImageEffectUtil.effectUtilByPIL(pixmap, ImageFilter.FIND_EDGES)
 
         # 轮廓提取
-        return AfterEffectUtilByPIL.effectUtilByPIL(pixmap, ImageFilter.CONTOUR)
+        return AfterEffectUtilByPIL._apply_cv_effect(pixmap, "contour")
 
 
 # class AfterEffectUtilByCv:
@@ -211,7 +188,7 @@ class AfterEffectUtilByPIL:
 #         if tempImage.format() != QImage.Format.Format_RGB32:
 #             tempImage = tempImage.convertToFormat(QImage.Format.Format_RGB32)
 
-#         image = Image.fromqimage(tempImage)
+#         image = qpixmap_to_ndarray(tempImage)
 #         width, height = pixmap.width(), pixmap.height()
 #         ndArray = np.array(image)
 
@@ -227,7 +204,7 @@ class AfterEffectUtilByPIL:
 #         if tempImage.format() != QImage.Format.Format_RGB32:
 #             tempImage = tempImage.convertToFormat(QImage.Format.Format_RGB32)
 
-#         image = Image.fromqimage(tempImage)
+#         image = qpixmap_to_ndarray(tempImage)
 #         width, height = pixmap.width(), pixmap.height()
 #         ndArray = np.array(image)
 
