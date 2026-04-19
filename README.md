@@ -156,16 +156,15 @@ The project now depends on the `YaoXuanZhi/system_hotkey` fork, which includes c
   - ✔ Add plugin marketplace UI
 
 ## ✔ Faster offline OCR recognition support
-## ❑ Improve UI display of OCR recognition layer
-Currently using QWebEngineView to implement the OCR text layer, but this solution has high resource usage. Also, the text selection effect isn't ideal and needs further iteration.
+## ✔ Improve UI display of OCR recognition layer
+The text layer is now drawn by a `QGraphicsWidget` (ported from the `pyside6-ocr-text-selection` project, located in `src/ocr_text_selection/`). The OCR text layer no longer depends on QWebEngineView or PDF.js, resource usage dropped significantly, and drag-selection across lines plus `Ctrl+C` to copy the selected text are supported.
 
 ### Optimization direction
-  - ☐ Currently using QWebEngineView for OCR text layer. Could reference PDF4QT (PDFSelectTextTool class) to implement a lighter version.
-    >Essentially need to rewrite PDFTextLayout and its supporting classes, which is non-trivial work.
-    >PDFCharacterPointer.py PDFTextBlock.py PDFTextLayout.py PDFTextLine.py PDFTextSelection.py PDFTextSelectionColoredltem.py TextCharacter.py
-    - https://github.com/openwebos/qt/blob/master/src/svg/qgraphicssvgitem.cpp
+  - ✔ Implemented a lighter version referencing PDF4QT (PDFSelectTextTool class).
+    >Rewritten along the lines of PDFTextLayout, keeping only the parts this project needs.
   - ✔ Build text labels based on recognized paragraphs. Current paragraph selection effect is poor.
     - https://github.com/hiroi-sora/GapTree_Sort_Algorithm
+    - The algorithm is now vendored at `src/ocr_text_selection/layout/GapTree_Sort_Algorithm/`
 
 ## ☐ Support image translation feature
 Similar to Japanese manga translation effects: erase text on images and fill back with translated text. Consider providing this as a plugin.
@@ -194,7 +193,8 @@ Further, the drawing layer module could be repackaged as NativeDrawTool, TlDrawE
 
 Currently recommending TlDrawEmbedTool first as it supports media/GIF file insertion and preview display, offering more utility.
 
-Considering OCR also uses WebEngineView for text selection layer, combining both approaches might be better and more convenient.
+#### Note
+- This option originally considered sharing the WebEngineView with the OCR text layer to save development effort, but the OCR text layer is now a native `QGraphicsWidget` implementation, so that argument no longer holds.
 
 ## ☐ Add node-based workflow customization
 Allow users to customize quick workflows through node-based drag-and-drop, like certain automation tasks. Reference projects:

@@ -74,20 +74,28 @@ class InternalOcrLoader_ReturnJson(OcrLoaderInterface):
         )
 
         data = []
-        for info in match_text_boxes:
-            text = info["text"]
-            left = float(info["box"][0][0])
-            top = float(info["box"][0][1])
-            right = float(info["box"][1][0])
-            bottom = float(info["box"][2][1])
-
-            left_top = [left, top]
-            right_top = [right, top]
-            right_bottom = [right, bottom]
-            left_bottom = [left, bottom]
-            box = [left_top, right_top, right_bottom, left_bottom]
-            score = 0.97
-            data.append({"text": text, "box": box, "score": score})
+        for box, result in zip(dt_boxes[0], results):
+            text, score = result
+            score = float(score)
+            # Keep the conversion identical to the original
+            # pyside6-ocr-text-selection OCR engine. In particular, derive the
+            # axis-aligned bounds from all four detector points instead of
+            # assuming a fixed corner order, and preserve the recognizer's real
+            # confidence value.
+            if not text or score <= 0.5:
+                continue
+            points = np.asarray(box, dtype=float)
+            left = float(points[:, 0].min())
+            top = float(points[:, 1].min())
+            right = float(points[:, 0].max())
+            bottom = float(points[:, 1].max())
+            axis_aligned_box = [
+                [left, top],
+                [right, top],
+                [right, bottom],
+                [left, bottom],
+            ]
+            data.append({"text": str(text), "box": axis_aligned_box, "score": score})
 
         print(
             f"[ocr-loader:json] result built count={len(data)} elapsed={time.time() - start_time:.3f}s",

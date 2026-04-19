@@ -137,15 +137,20 @@ class PinEditorWindow(PinWindow):
         # https://stackoverflow.com/questions/44177115/copying-from-and-to-clipboard-loses-image-transparency/46424800#46424800
         # https://stackoverflow.com/questions/44287407/text-erased-from-screenshot-after-using-clipboard-getimage-on-windows-10/46400011#46400011
 
-        if cfg.get(cfg.windowShadowStyleIsCopyWithShadow):
-            finalPixmap = self.grabWithShaodw()
-        else:
-            finalPixmap = self.grab()
+        finalPixmap = self.grabImage(cfg.get(cfg.windowShadowStyleIsCopyWithShadow))
 
         kv = {"pixmap": finalPixmap}
         pluginMgr.handleEvent(GlobalEventEnum.ImageCopyingEvent, kv=kv, parent=self)
         finalPixmap = kv["pixmap"]
         QApplication.clipboard().setPixmap(finalPixmap)
+
+    def grabImage(self, withShadow: bool) -> QPixmap:
+        """抓取窗口位图，并临时隐藏OCR文本层的选中高亮"""
+        self.painterWidget.setOcrTextLayerVisible(False)
+        try:
+            return self.grabWithShaodw() if withShadow else self.grab()
+        finally:
+            self.painterWidget.setOcrTextLayerVisible(True)
 
     def saveToDisk(self):
         # 获取当前时间，并格式化
@@ -162,10 +167,7 @@ class PinEditorWindow(PinWindow):
             self, "Save File", finalPath, "PNG(*.png)"
         )
         if savePath != None:
-            if cfg.get(cfg.windowShadowStyleIsSaveWithShadow):
-                finalPixmap = self.grabWithShaodw()
-            else:
-                finalPixmap = self.grab()
+            finalPixmap = self.grabImage(cfg.get(cfg.windowShadowStyleIsSaveWithShadow))
 
             kv = {"pixmap": finalPixmap}
             pluginMgr.handleEvent(GlobalEventEnum.ImageSavingEvent, kv=kv, parent=self)

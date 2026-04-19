@@ -267,7 +267,7 @@ class Config(QConfig):
     # OcrLoaderSetting
     # 注意，OCRLoader采取的是动态加载方式，这里只是用于占位
     useOcrLoaderType = OptionsConfigItem(
-        "OcrLoaderConfig", "OcrLoaderType", "InternalOcrLoader_ReturnTextPlus"
+        "OcrLoaderConfig", "OcrLoaderType", "InternalOcrLoader_ReturnJson"
     )
     ocrLoaderFolder = ConfigItem(
         "OcrLoaderConfig", "OcrLoaderFolder", "", FolderValidator()

@@ -156,16 +156,16 @@ ruff format
   - ✔ 添加插件市场UI
 
 ## ✔ 更快的离线OCR识别支持
-## ❑ 完善OCR识别层的UI显示
-目前已采用QWebEngineView来实现了OCR文本层，但该方案资源占用较大，另外文本层选择的效果也不够理想，还需要继续迭代
+## ✔ 完善OCR识别层的UI显示
+已改用`QGraphicsWidget`自行绘制文本层（移植自`pyside6-ocr-text-selection`项目，位于`src/ocr_text_selection/`），
+OCR文本层不再依赖QWebEngineView与PDF.js，资源占用大幅下降，并支持拖拽跨行选中、`Ctrl+C`复制选中文本
 
 ### 优化方向
-  - ☐ 目前采用了QWebEngineView来实现了OCR文本层，可以参考PDF4QT(PDFSelectTextTool类)来实现一个更轻量级的版本 
-    >基本上要将PDFTextLayout及其配套的类都重写一遍，工作量并不小
-    >PDFCharacterPointer.py PDFTextBlock.py PDFTextLayout.py PDFTextLine.py PDFTextSelection.py PDFTextSelectionColoredltem.py TextCharacter.py
-    - https://github.com/openwebos/qt/blob/master/src/svg/qgraphicssvgitem.cpp
+  - ✔ 参考PDF4QT(PDFSelectTextTool类)实现了一个更轻量级的版本
+    >基本沿用PDFTextLayout的思路重写了一遍，但只保留本项目需要的部分
   - ✔ 根据文本识别段落来构筑各个文本标签，目前段落选择效果不佳
     - https://github.com/hiroi-sora/GapTree_Sort_Algorithm
+    - 该算法已内置于`src/ocr_text_selection/layout/GapTree_Sort_Algorithm/`
 
 ## ☐ 支持图片翻译功能
 类似日漫汉化之类的效果，将图片上的文本涂抹掉，然后填充回翻译后的文本，考虑下以插件形式提供该功能
@@ -195,7 +195,8 @@ https://tldraw.dev/examples/use-cases/image-annotator
 
 当下本人比较建议先接入TlDrawEmbedTool，因为它还支持媒体、gif等格式的媒体文件插入并且预览显示，更有妙用
 
-其实考虑到OCR识别之后，也是采用WebEngineView作为文本选择层，那么将它们两者结合起来也不失为一个更好的方案，起码省事多了
+#### 补充
+- 该方案最初还考虑过与OCR文本层共用WebEngineView以节省开发量，但OCR文本层现已改为原生`QGraphicsWidget`实现，因此这条理由不再成立
 
 ## ☐ 增加节点式流程定制化支持
 可以让用户通过节点式拖曳定制一些快捷流程，比如某些自动化任务啥的，具体可以参考以下项目

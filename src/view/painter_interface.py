@@ -11,10 +11,10 @@ from common import ScreenShotIcon
 from canvas_editor import *
 from canvas_item import *
 from toolbar import *
-from pdf_viewer import *
 from plugin import pluginMgr, GlobalEventEnum
 from plugin import *
 from ocr_loader import *
+from ocr_text_selection import build_page_from_ocr_json
 
 
 # 绘制动作
@@ -48,6 +48,7 @@ class PainterInterface(QWidget):
         self.sceneBrush: QBrush = None
         self.painterToolBarMgr: PainterToolBarManager = None
         self.currentDrawActionEnum = DrawActionEnum.DrawNone
+        self.ocrTextLayerItem: CanvasOcrTextItem = None
         self.hotkey = QWidgetHotKey()
         self.hotkey.setHotkeyListenerEx("space", 3, self.clearDraw)
         self.initLayout()
@@ -337,9 +338,60 @@ class PainterInterface(QWidget):
         painter = QPainter()
         painter.begin(basePixmap)
         if self.drawWidget != None:
+            # OCR文本层的选中高亮只是交互反馈，不能落在导出的图片上
+            self.setOcrTextLayerVisible(False)
             painter.drawPixmap(self.drawWidget.geometry(), self.drawWidget.grab())
+            self.setOcrTextLayerVisible(True)
         painter.end()
         return basePixmap
+
+    def buildOcrTextLayer(self, ocrResult: dict):
+        """把最新的OCR识别结果显示成可拖拽选中的文本层，并替换旧文本层"""
+        self.clearOcrTextLayer()
+        if self.drawWidget == None or self.physicalPixmap == None:
+            return
+
+        devicePixelRatio = CanvasUtil.getDevicePixelRatio()
+        pageWidth = self.physicalPixmap.width() / devicePixelRatio
+        pageHeight = self.physicalPixmap.height() / devicePixelRatio
+        if pageWidth <= 0 or pageHeight <= 0:
+            return
+
+        page = build_page_from_ocr_json(
+            ocrResult, pageWidth, pageHeight, devicePixelRatio
+        )
+        logger.info(
+            f"ocr text layer: page={pageWidth:.1f}x{pageHeight:.1f}, tokens={len(page.tokens)}",
+            logger_name="ocr",
+        )
+
+        textLayerItem = CanvasOcrTextItem(page)
+        textLayerItem.setSelectionEnabled(
+            self.currentDrawActionEnum == DrawActionEnum.SelectItem
+        )
+        self.drawWidget.scene.addItem(textLayerItem)
+        self.ocrTextLayerItem = textLayerItem
+
+    def clearOcrTextLayer(self):
+        """移除已有的OCR文本层"""
+        if self.ocrTextLayerItem == None:
+            return
+        scene = self.ocrTextLayerItem.scene()
+        if scene != None:
+            scene.removeItem(self.ocrTextLayerItem)
+        self.ocrTextLayerItem = None
+
+    def syncOcrTextLayerState(self):
+        """只有"选择对象"工具下，OCR文本层才响应鼠标和键盘"""
+        if self.ocrTextLayerItem == None:
+            return
+        self.ocrTextLayerItem.setSelectionEnabled(
+            self.currentDrawActionEnum == DrawActionEnum.SelectItem
+        )
+
+    def setOcrTextLayerVisible(self, visible: bool):
+        if self.ocrTextLayerItem != None:
+            self.ocrTextLayerItem.setVisible(visible)
 
     def copyToClipboard(self):
         kv = {"pixmap": self.getFinalPixmap()}
@@ -363,17 +415,10 @@ class PainterInterface(QWidget):
                 % (self.tr("Switch to"), self.drawActionInfo.getInfo(drawActionEnum))
             )
         self.currentDrawActionEnum = drawActionEnum
+        self.syncOcrTextLayerState()
         if self.painterToolBarMgr != None:
             self.painterToolBarMgr.switchDrawTool(drawActionEnum)
         self.setCursor(cursor)
-
-        if drawActionEnum == DrawActionEnum.SelectItem:
-            if hasattr(self, "webViewerItem"):
-                self.webViewerItem.setEnabled(True)
-        else:
-            if hasattr(self, "webViewerItem"):
-                self.webViewerItem.setEnabled(False)
-                self.webViewerItem.cancelSelectText()
 
     def preHandleEraseToole(self, drawActionEnum: DrawActionEnum):
         eraseTools = [
@@ -394,6 +439,7 @@ class PainterInterface(QWidget):
     ):
         self.drawWidget.switchDrawTool(drawActionEnum)
         self.currentDrawActionEnum = drawActionEnum
+        self.syncOcrTextLayerState()
         self.setCursor(cursor)
 
     def clearDraw(self):
@@ -433,6 +479,7 @@ class PainterInterface(QWidget):
     def clearDrawFlag(self):
         self.currentDrawActionEnum = DrawActionEnum.DrawNone
         self.setCursor(QCursor(Qt.CursorShape.ArrowCursor))
+        self.syncOcrTextLayerState()
 
         if self.actionGroup != None:
             for action in self.actionGroup.actions():
@@ -602,6 +649,8 @@ class PainterInterface(QWidget):
                 f"ocr result summary: {self.__summarizeOcrResult(result)}",
                 logger_name="ocr",
             )
+            if not isinstance(result, dict):
+                raise TypeError("OCR loader must return a JSON object")
             self.ocrEndSuccessSignal.emit(result)
 
         except Exception as e:
@@ -619,89 +668,16 @@ class PainterInterface(QWidget):
             ocr_mode=self.ocrLoader.displayName,
         )
 
-    def onEscPressed(self, hasSelectedText):
-        if hasSelectedText:
-            if hasattr(self, "webViewerItem"):
-                self.webViewerItem.cancelSelectText()
-        else:
-            escapeEvent = QKeyEvent(QKeyEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier)
-            QApplication.sendEvent(self, escapeEvent)
-
-    def onHtmlRenderStart(self):
-        if hasattr(self, "webViewerItem"):
-            self.webViewerItem.setOpacity(0)
-
-    def onHtmlRenderEnd(self, _width, _height):
-        self.delayTimer = QTimer(self)
-        self.delayTimer.timeout.connect(self.onDelayExecute)
-        self.delayTimer.start(300)
-
-    def onDelayExecute(self):
-        self.delayTimer.stop()
-        if hasattr(self, "webViewerItem"):
-            self.webViewerItem.setOpacity(1)
-
-        self.showCommandBar()
-        self.selectItemAction.trigger()
-
-    def onOcrEndForReturnStr(self, input: str):
-        # 渲染Html
-        if input.endswith(".pdf"):
-            self.webViewerItem = CanvasOcrViewerItem(PdfWidget())
-        elif input.endswith(".html"):
-            self.webViewerItem = CanvasOcrViewerItem(WebWidget())
-        else:
-            # 传了一个网页文本进来
-            self.webViewerItem = CanvasOcrViewerItem(WebWidget())
-
-        self.webViewerItem.receiver.htmlRenderStartSlot.connect(self.onHtmlRenderStart)
-        self.webViewerItem.receiver.htmlRenderEndSlot.connect(self.onHtmlRenderEnd)
-        self.webViewerItem.receiver.escPressedSlot.connect(self.onEscPressed)
-
-        self.drawWidget.scene.addItem(self.webViewerItem)
-        # 让OCR文本层位于最底部
-        self.webViewerItem.setZValue(-1)
-
-        if input.endswith(".html") or input.endswith(".pdf"):
-            self.webViewerItem.openFile(input)
-        else:
-            self.webViewerItem.setHtml(input)
-
     def onOcrEndForReturnJson(self, input: dict):
-        boxInfos = input["data"]
-        # 将ocr识别结果渲染出来
-        drop_score = 0.5
-        dpiScale = CanvasUtil.getDevicePixelRatio()
-
-        for info in boxInfos:
-            text = info["text"]
-            box = info["box"]
-            score = info["score"]
-            if score is not None and score < drop_score:
-                continue
-
-            polygon = QPolygonF()
-            for position in box:
-                achorPos = QPointF(
-                    position[0] / dpiScale, position[-1] / dpiScale
-                ).toPoint()
-                # finalPosition = self.drawWidget.view.mapToScene(achorPos)
-                finalPosition = achorPos
-                polygon.append(finalPosition)
-
-            textItem = CanvasOcrTextItem(polygon.boundingRect(), text)
-            self.drawWidget.scene.addItem(textItem)
-            self.drawWidget.scene.addPolygon(
-                polygon, QPen(Qt.GlobalColor.yellow), QBrush(Qt.NoBrush)
-            )
+        """将OCR识别结果渲染成可拖拽选中的文本层"""
+        self.buildOcrTextLayer(input)
 
     def onOcrEndSuccess(self, input):
         pluginMgr.handleEvent(GlobalEventEnum.OcrEndSuccessEvent, parent_widget=self)
 
-        if isinstance(input, dict):
-            self.onOcrEndForReturnJson(input)
-        else:
-            self.onOcrEndForReturnStr(input)
+        self.onOcrEndForReturnJson(input)
+        self.showCommandBar()
+        self.selectItemAction.trigger()
 
         if hasattr(self, "ocrThread"):
             self.ocrThread.quit()

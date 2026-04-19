@@ -8,6 +8,7 @@ from .canvas_marker_pen import CanvasMarkerPen
 from .canvas_svg_item import CanvasSvgItem
 from .canvas_star_item import CanvasStarItem
 from .canvas_text_item import CanvasTextItem
+from .canvas_ocr_text_item import CanvasOcrTextItem
 from .canvas_number_marker_item import CanvasNumberMarkerItem
 from .canvas_shape_item import CanvasShapeItem, CanvasShapeEnum
 from .canvas_pen_item import CanvasPenItem
@@ -15,7 +16,6 @@ from .canvas_eraser_item import CanvasEraserItem
 from .canvas_eraser_item import CanvasEraserRectItem
 from .canvas_eraser_item import CanvasShadowEraserRectItem
 from .canvas_eraser_item import CanvasShadowEraserEllipseItem
-from .canvas_ocr_text_item import CanvasOcrTextItem
 from .canvas_effect_item import CanvasEffectRectItem
 from .canvas_mask_item import CanvasMaskItem
 from .canvas_paste_image_item import CanvasPasteImageItem
