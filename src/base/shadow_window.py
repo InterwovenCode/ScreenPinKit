@@ -4,6 +4,31 @@ from PyQt5.QtGui import *
 from PyQt5.QtGui import QShowEvent
 from PyQt5.QtWidgets import *
 from .mouse_through_window import *
+from misc import OsHelper
+
+
+class RoundedWindowEffect(QGraphicsEffect):
+    """对窗口及其子控件整体进行带 alpha 抗锯齿的圆角合成。"""
+
+    def __init__(self, roundRadius, parent=None):
+        super().__init__(parent)
+        self.roundRadius = roundRadius
+
+    def setRoundRadius(self, value):
+        self.roundRadius = value
+        self.update()
+
+    def draw(self, painter):
+        if self.roundRadius <= 0:
+            self.drawSource(painter)
+            return
+        pixmap, offset = self.sourcePixmap(
+            Qt.LogicalCoordinates, QGraphicsEffect.NoPad
+        )
+        if not pixmap.isNull():
+            painter.drawPixmap(
+                offset, OsHelper.ConvertToRoundedPixmap(pixmap, self.roundRadius)
+            )
 
 
 class ShadowWindow(MouseThroughWindow):
@@ -85,28 +110,14 @@ class ShadowWindow(MouseThroughWindow):
         self.applyRoundClip(self.attachParent, self.roundRadius)
 
     def applyRoundClip(self, targetWidget: QWidget, roundRadius):
-        """裁剪窗口为圆角"""
-        # 创建一个QBitmap对象，用于定义窗口的遮罩
-        maskBitmap = QBitmap(targetWidget.size())
-        maskBitmap.fill(Qt.GlobalColor.color0)  # 填充为黑色（透明）
-
-        # 创建一个QPainter对象，用于绘制遮罩
-        painter = QPainter(maskBitmap)
-        painter.setRenderHints(QPainter.RenderHint.SmoothPixmapTransform | QPainter.RenderHint.Antialiasing)
-
-        # 设置画笔和画刷
-        painter.setPen(Qt.GlobalColor.color1)  # 设置画笔颜色为白色（不透明）
-        painter.setBrush(Qt.GlobalColor.color1)  # 设置画刷颜色为白色（不透明）
-
-        # 绘制圆角矩形
-        rect = QRect(0, 0, targetWidget.width(), targetWidget.height())
-        painter.drawRoundedRect(rect, roundRadius, roundRadius)  # 20是圆角的半径
-
-        # 结束绘制
-        painter.end()
-
-        # 设置遮罩
-        targetWidget.setMask(maskBitmap)
+        """用透明度合成替代只有 1 bit 的窗口遮罩。"""
+        targetWidget.clearMask()
+        effect = targetWidget.graphicsEffect()
+        if not isinstance(effect, RoundedWindowEffect):
+            effect = RoundedWindowEffect(roundRadius, targetWidget)
+            targetWidget.setGraphicsEffect(effect)
+        else:
+            effect.setRoundRadius(roundRadius)
 
     def setShadowColor(self, activedColor: QColor, deactivedColor: QColor):
         self.activedColor = activedColor

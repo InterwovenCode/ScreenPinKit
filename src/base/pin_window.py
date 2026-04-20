@@ -84,7 +84,8 @@ class PinWindow(DragWindow):
         basePixmap = self.shadowWindow.grab()
         painter = QPainter()
         painter.begin(basePixmap)
-        grab = OsHelper.ConvertToRoundedPixmap(self.grab(), self.roundRadius)
+        # grab 已包含圆角合成，重复裁剪会再次衰减边缘透明度。
+        grab = self.grab()
         painter.drawPixmap(self.shadowWidth, self.shadowWidth, grab)
         painter.end()
         return basePixmap

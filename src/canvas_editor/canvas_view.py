@@ -51,6 +51,13 @@ class CanvasView(QGraphicsView):
         if not hasattr(self, "isInit"):
             self.isInit = True
             self.originFrameSize = self.frameSize()
+            # 圆角效果可能在布局完成前触发离屏绘制，此时控件仍是临时尺寸。
+            # 有背景图时使用画刷变换后的图片尺寸，避免把临时尺寸作为缩放基准。
+            backgroundBrush = self.scene().backgroundBrush()
+            texture = backgroundBrush.texture()
+            if not texture.isNull():
+                imageRect = backgroundBrush.transform().mapRect(QRectF(texture.rect()))
+                self.originFrameSize = imageRect.size().toSize()
             self.scene().setSceneRect(
                 0, 0, self.originFrameSize.width(), self.originFrameSize.height()
             )

@@ -200,12 +200,14 @@ class OsHelper:
         painter = QPainter(finalPixmap)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # 设置裁剪区域
+        # 先绘制带抗锯齿 alpha 的形状，再合成原图；路径裁剪不保留边缘覆盖率。
         path = QPainterPath()
-        path.addRoundedRect(logicRect, radius, radius)
-        painter.setClipPath(path)
-
-        # 复制图像
+        if radius > 0:
+            path.addRoundedRect(logicRect, radius, radius)
+        else:
+            path.addRect(logicRect)
+        painter.fillPath(path, Qt.white)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
         painter.drawPixmap(0, 0, pixmap)
 
         painter.end()
