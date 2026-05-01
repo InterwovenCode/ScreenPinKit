@@ -7,6 +7,7 @@ from misc import *
 class ScreenShotWindow(QWidget):
     snipedSignal = pyqtSignal(QRectF, QPixmap)
     closedSignal = pyqtSignal()
+    selectionReady = pyqtSignal(QRect)
 
     Unknown = 0
     TopLeft = 1
@@ -591,6 +592,15 @@ class ScreenShotWindow(QWidget):
                 self.hasScreenShot = True
                 self.isAdjusting = True
                 self.update()
+            if self.hasScreenShot:
+                self._emitSelectionReady()
+
+    def _emitSelectionReady(self):
+        rect = self.normalizeRectF(self._pt_start, self._pt_end)
+        if rect.width() < 2 or rect.height() < 2:
+            return
+        top_left = self.mapToGlobal(rect.topLeft().toPoint())
+        self.selectionReady.emit(QRect(top_left, rect.size().toSize()))
 
     def mouseMoveEvent(self, event: QMouseEvent):
         pos = event.pos()

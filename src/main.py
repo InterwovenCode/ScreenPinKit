@@ -1,6 +1,6 @@
 import sys, os
 
-from PyQt5.QtCore import QCoreApplication, QTranslator, Qt
+from PyQt5.QtCore import QCoreApplication, QTimer, QTranslator, Qt
 from PyQt5.QtWidgets import QApplication, QWidget
 from qfluentwidgets import Action, FluentTranslator, Icon
 
@@ -15,6 +15,7 @@ from base.app_dpi_helper import AppDpiHelper
 from version.version import APP_NAME
 from plugin import pluginMgr, GlobalEventEnum
 from ocr_loader.ocr_loader_manager import ocrLoaderMgr
+from view.app_guide import AppGuide
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -45,6 +46,11 @@ class MainWindow(QWidget):
                 self.tr("Preferences"),
                 triggered=self.showSettingWindow,
             ),
+            Action(
+                ScreenShotIcon.GUIDE,
+                self.tr("Usage guide"),
+                triggered=self.showUsageGuide,
+            ),
             Action(ScreenShotIcon.QUIT, self.tr("Exit"), triggered=self.exit),
         ]
         self.systemTrayIcon = SystemTrayIcon(
@@ -71,6 +77,12 @@ class MainWindow(QWidget):
         pluginMgr.handleEvent(
             GlobalEventEnum.GlobalHotKeyRegisterEnd, keyboard=self.keyObj
         )
+        self.appGuide = AppGuide(self)
+        if not cfg.get(cfg.guideCompleted):
+            self._guideStartTimer = QTimer(self)
+            self._guideStartTimer.setSingleShot(True)
+            self._guideStartTimer.timeout.connect(self.appGuide.start)
+            self._guideStartTimer.start(600)
 
     def repeatScreenShot(self):
         self.pinWindowMgr.repeatSnip()
@@ -93,6 +105,9 @@ class MainWindow(QWidget):
 
     def showClipboard(self):
         self.pinWindowMgr.showClipboard()
+
+    def showUsageGuide(self):
+        self.appGuide.start()
 
     def showSettingWindow(self):
         if self.settingWindow == None:

@@ -69,6 +69,7 @@ class Config(QConfig):
         "General", "ImageNameFormat", "ScreenPinKit_{0}.png", ConfigValidator()
     )
     isAutoFindWindow = ConfigItem("General", "IsAutoFindWindow", True, BoolValidator())
+    guideCompleted = ConfigItem("General", "GuideCompleted", False, BoolValidator())
 
     pluginMarketUrl = ConfigItem("General", "PluginMarketUrl", "https://github.com/InterwovenCode/ScreenPinKit-Plugin-Examples/raw/refs/heads/main/plugin_market/extensions.json", ConfigValidator())
     pluginsFolder = ConfigItem("General", "PluginsFolder", "..", FolderValidator())

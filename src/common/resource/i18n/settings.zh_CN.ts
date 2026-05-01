@@ -329,6 +329,10 @@
         <translation>首选项</translation>
     </message>
     <message>
+        <source>Usage guide</source>
+        <translation>使用指引</translation>
+    </message>
+    <message>
         <source>SwitchMouseThroughState</source>
         <translation>切换鼠标穿透</translation>
     </message>
@@ -1128,6 +1132,97 @@
     <message>
         <source>Save log messages to files in the logs directory</source>
         <translation>将日志消息保存到日志目录中的文件中</translation>
+    </message>
+</context>
+<context>
+    <name>AppGuide</name>
+    <message>
+        <source>Welcome to ScreenPinKit</source>
+        <translation>欢迎使用 ScreenPinKit</translation>
+    </message>
+    <message>
+        <source>ScreenPinKit stays in the tray for screenshots, pins, and annotation. This guide walks through those windows.</source>
+        <translation>这是一款常驻托盘的截图、贴图和标注工具。接下来用几步走一遍这些窗口。</translation>
+    </message>
+    <message>
+        <source>The tray icon</source>
+        <translation>托盘图标</translation>
+    </message>
+    <message>
+        <source>Left-click the tray icon to take a screenshot. Right-click it to open Preferences or Exit.</source>
+        <translation>左键单击托盘图标开始截图。右键可以打开「首选项」和「退出」。</translation>
+    </message>
+    <message>
+        <source>Take a screenshot</source>
+        <translation>截取屏幕</translation>
+    </message>
+    <message>
+        <source>Drag to select a region, or click a window the app highlights. Press {shot} later to open this view again.</source>
+        <translation>拖拽框选区域，或单击自动识别出的窗口。之后按 {shot} 可以再次打开截图。</translation>
+    </message>
+    <message>
+        <source>Pin the selection</source>
+        <translation>变成贴图</translation>
+    </message>
+    <message>
+        <source>Press Ctrl+T to pin the selection. Ctrl+C copies it without pinning. C copies the color under the pointer.</source>
+        <translation>按 Ctrl+T 把选区贴到屏幕上。Ctrl+C 只复制、不生成贴图。按 C 复制指针处的颜色。</translation>
+    </message>
+    <message>
+        <source>Work with the pin</source>
+        <translation>使用贴图</translation>
+    </message>
+    <message>
+        <source>Scroll to zoom. Ctrl+scroll changes opacity. Double-click closes the pin. {through} toggles click-through.</source>
+        <translation>滚轮缩放。按住 Ctrl 再滚轮可调整透明度。双击关闭贴图。{through} 切换鼠标穿透。</translation>
+    </message>
+    <message>
+        <source>Annotate on the pin</source>
+        <translation>在贴图上标注</translation>
+    </message>
+    <message>
+        <source>The toolbar is open. Choose a tool and draw. Later, right-click the pin and choose Show toolbar to open it again.</source>
+        <translation>工具栏已经打开，选一个工具就能画。之后在贴图上右键，选择「显示工具栏」可以再次打开。</translation>
+    </message>
+    <message>
+        <source>Draw on the desktop</source>
+        <translation>在桌面上画</translation>
+    </message>
+    <message>
+        <source>Press {paint} to draw on the whole desktop. Ctrl+W finishes and lets clicks pass through. {toggle} hides or shows the drawing.</source>
+        <translation>按 {paint} 直接在整个桌面上画。Ctrl+W 完成后鼠标可以穿透。{toggle} 隐藏或显示这些标注。</translation>
+    </message>
+    <message>
+        <source>Read text with OCR</source>
+        <translation>用 OCR 读取文字</translation>
+    </message>
+    <message>
+        <source>On a pin, press Ctrl+A to recognize text. Drag across the result, then press Ctrl+C to copy it. This step does not start OCR for you.</source>
+        <translation>在贴图上按 Ctrl+A 识别文字。拖拽选中识别结果，再按 Ctrl+C 复制。这一步不会自动开始识别。</translation>
+    </message>
+    <message>
+        <source>You are ready</source>
+        <translation>可以开始用了</translation>
+    </message>
+    <message>
+        <source>Open Usage guide from the tray menu whenever you want this walkthrough again.</source>
+        <translation>以后可以在托盘菜单里打开「使用指引」，再看一遍。</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>下一步</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>上一步</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation>跳过</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>完成</translation>
     </message>
 </context>
 </TS>
